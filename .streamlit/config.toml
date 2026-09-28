@@ -1,0 +1,17 @@
+```toml
+[theme]
+base = "dark"
+primaryColor = "#22D3EE"
+backgroundColor = "#050B14"
+secondaryBackgroundColor = "#071525"
+textColor = "#F8FAFC"
+font = "sans serif"
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+```

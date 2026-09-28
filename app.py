@@ -16,20 +16,20 @@ st.set_page_config(
 
 
 # ============================================================
-# GLOBAL STYLE
+# CSS — ONLY FOR VISUAL STYLING
 # ============================================================
 
 st.markdown(
     """
     <style>
 
-    html, body, [data-testid="stAppViewContainer"] {
-        background: #07111F !important;
-        color: #F8FAFC !important;
+    /* Main application */
+    .stApp {
+        background: #07111F;
     }
 
     [data-testid="stHeader"] {
-        background: transparent !important;
+        background: transparent;
     }
 
     [data-testid="stToolbar"] {
@@ -42,183 +42,48 @@ st.markdown(
         padding-bottom: 4rem;
     }
 
-    /* HERO */
-
-    .hero {
-        padding: 42px 46px;
-        border: 1px solid rgba(34, 211, 238, 0.20);
-        border-radius: 24px;
-
-        background:
-            radial-gradient(
-                circle at 80% 20%,
-                rgba(34, 211, 238, 0.08),
-                transparent 35%
-            ),
-            linear-gradient(
-                135deg,
-                rgba(9, 25, 43, 0.98),
-                rgba(5, 15, 28, 0.98)
-            );
-
-        box-shadow:
-            0 20px 80px rgba(0, 0, 0, 0.35);
+    /* Main headings */
+    h1, h2, h3 {
+        color: #F8FAFC !important;
     }
 
-    .kicker {
-        color: #22D3EE;
-        font-weight: 800;
-        letter-spacing: 4px;
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-
-    .hero-title {
-        margin: 0;
-        font-size: clamp(50px, 8vw, 92px);
-        line-height: 0.95;
-        font-weight: 900;
-        letter-spacing: -4px;
-        color: #F8FAFC;
-    }
-
-    .hero-title span {
-        color: #22D3EE;
-    }
-
-    .hero-subtitle {
-        max-width: 900px;
-        margin-top: 22px;
+    /* Normal text */
+    p, li {
         color: #A9B8C9;
-        font-size: 18px;
-        line-height: 1.7;
     }
 
-    .hero-subtitle b {
-        color: #E8FAFF;
-    }
-
-    /* BADGES */
-
-    .badge-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 25px;
-    }
-
-    .badge {
-        border: 1px solid rgba(34, 211, 238, 0.22);
-        background: rgba(34, 211, 238, 0.07);
+    /* Buttons */
+    .stButton > button {
+        border: 1px solid rgba(34, 211, 238, 0.30);
+        background: #0B1C2D;
         color: #D9F9FF;
-
-        padding: 8px 14px;
-        border-radius: 999px;
-
-        font-size: 13px;
-        font-weight: 600;
+        border-radius: 10px;
     }
 
-    /* SECTION */
-
-    .section-title {
-        margin-top: 46px;
-        margin-bottom: 8px;
-
-        font-size: 30px;
-        font-weight: 800;
-        color: #F8FAFC;
+    .stButton > button:hover {
+        border-color: #22D3EE;
+        color: #22D3EE;
     }
 
-    .section-description {
-        color: #94A3B8;
-        margin-bottom: 18px;
-        line-height: 1.6;
-    }
-
-    /* CARDS */
-
-    .info-card {
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 18px;
-
-        padding: 24px;
-
-        background:
-            linear-gradient(
-                145deg,
-                rgba(11, 28, 45, 0.98),
-                rgba(7, 19, 32, 0.98)
-            );
-
-        min-height: 150px;
-    }
-
-    .info-card h3 {
-        margin-top: 0;
-        color: #E8FAFF;
-    }
-
-    .info-card p {
-        color: #94A3B8;
-        line-height: 1.6;
-    }
-
-    /* METRICS */
-
-    .metric-card {
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: #0A1727;
         border: 1px solid rgba(34, 211, 238, 0.16);
-        border-radius: 18px;
-
-        padding: 22px;
-
-        background: #0A1727;
+        border-radius: 16px;
+        padding: 18px;
     }
 
-    .metric-value {
-        font-size: 30px;
-        font-weight: 800;
+    [data-testid="stMetricValue"] {
         color: #22D3EE;
     }
 
-    .metric-label {
-        margin-top: 4px;
+    [data-testid="stMetricLabel"] {
         color: #94A3B8;
-        font-size: 13px;
     }
 
-    /* FLOW */
-
-    .flow {
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 18px;
-
-        padding: 25px;
-
-        background: #0A1727;
-
-        color: #D9F9FF;
-        line-height: 2;
-        text-align: center;
-        font-weight: 600;
-    }
-
-    .flow span {
-        color: #22D3EE;
-        margin: 0 8px;
-    }
-
-    /* FOOTER */
-
-    .footer {
-        margin-top: 50px;
-        padding: 25px 0;
-
-        border-top: 1px solid rgba(148, 163, 184, 0.12);
-
-        color: #64748B;
-        text-align: center;
-        font-size: 13px;
+    /* Divider */
+    hr {
+        border-color: rgba(148, 163, 184, 0.12);
     }
 
     </style>
@@ -231,76 +96,50 @@ st.markdown(
 # HERO
 # ============================================================
 
-st.markdown(
-    """
-    <section class="hero">
+st.caption("SIH26172  •  ISRO  •  EDGE AI")
 
-        <div class="kicker">
-            SIH26172 · ISRO · EDGE AI
-        </div>
+st.title("VAANI")
 
-        <h1 class="hero-title">
-            VA<span>A</span>NI
-        </h1>
-
-        <div class="hero-subtitle">
-            Low Latency and Efficient Voice Activator for Edge Devices.
-            An <b>offline-first hybrid voice architecture</b> where
-            everyday voice activation and local decisions remain on the
-            edge, while remote ASR is used only when required.
-        </div>
-
-        <div class="badge-row">
-
-            <div class="badge">
-                Offline First
-            </div>
-
-            <div class="badge">
-                TinyML
-            </div>
-
-            <div class="badge">
-                Custom Keyword
-            </div>
-
-            <div class="badge">
-                ESP32 Edge
-            </div>
-
-            <div class="badge">
-                Low Latency
-            </div>
-
-            <div class="badge">
-                Open Source
-            </div>
-
-        </div>
-
-    </section>
-    """,
-    unsafe_allow_html=True,
+st.subheader(
+    "Low Latency and Efficient Voice Activator for Edge Devices"
 )
+
+st.write(
+    """
+    An **offline-first hybrid voice architecture** where everyday
+    voice activation and local decisions remain on the edge, while
+    remote ASR is used only when required.
+    """
+)
+
+badge_columns = st.columns(6)
+
+badges = [
+    "Offline First",
+    "TinyML",
+    "Custom Keyword",
+    "ESP32 Edge",
+    "Low Latency",
+    "Open Source",
+]
+
+for column, badge in zip(badge_columns, badges):
+    with column:
+        st.info(badge)
 
 
 # ============================================================
 # DIGITAL TWIN
 # ============================================================
 
-st.markdown(
-    """
-    <div class="section-title">
-        Interactive 3D Hardware Digital Twin
-    </div>
+st.header("Interactive 3D Hardware Digital Twin")
 
-    <div class="section-description">
-        Software simulation of the physical VAANI edge architecture.
-        Local listening remains active by default. Network streaming
-        begins only after the custom wake keyword is detected.
-    </div>
-    """,
-    unsafe_allow_html=True,
+st.write(
+    """
+    Software simulation of the physical VAANI edge architecture.
+    Local listening remains active by default. Network streaming
+    begins only after the custom wake keyword is detected.
+    """
 )
 
 
@@ -323,183 +162,207 @@ if digital_twin.exists():
 else:
 
     st.error(
-        "Digital Twin not found. "
-        "Expected file: assets/digital_twin/index.html"
+        "Digital Twin file not found: "
+        "assets/digital_twin/index.html"
     )
-
-
-# ============================================================
-# SYSTEM ARCHITECTURE
-# ============================================================
-
-st.markdown(
-    """
-    <div class="section-title">
-        VAANI Edge Architecture
-    </div>
-
-    <div class="section-description">
-        The architecture separates always-on local wake detection
-        from optional post-wake remote speech processing.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-st.markdown(
-    """
-    <div class="flow">
-
-        I2S MEMS Microphone
-
-        <span>→</span>
-
-        Audio Capture
-
-        <span>→</span>
-
-        MFCC / Log-Mel
-
-        <span>→</span>
-
-        TinyML KWS
-
-        <span>→</span>
-
-        Wake Decision
-
-        <br>
-
-        NO
-
-        <span>→</span>
-
-        Continue Local Listening
-
-        &nbsp;&nbsp;&nbsp;
-
-        YES
-
-        <span>→</span>
-
-        Wi-Fi
-
-        <span>→</span>
-
-        Remote ASR
-
-        <span>→</span>
-
-        Response
-
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
 
 # ============================================================
 # SIH ENGINEERING TARGETS
 # ============================================================
 
-st.markdown(
-    """
-    <div class="section-title">
-        SIH Engineering Targets
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+st.header("SIH Engineering Targets")
 
+metric_columns = st.columns(4)
 
-metric_cols = st.columns(4)
+with metric_columns[0]:
+    st.metric(
+        label="Edge RAM Target",
+        value="< 256 KB",
+    )
 
+with metric_columns[1]:
+    st.metric(
+        label="Idle CPU Target",
+        value="< 10%",
+    )
 
-metrics = [
-    ("< 256 KB", "Edge RAM target"),
-    ("< 10%", "Idle CPU target"),
-    ("INT8", "Quantized TinyML"),
-    ("Custom", "Wake keyword"),
-]
+with metric_columns[2]:
+    st.metric(
+        label="Model Quantization",
+        value="INT8",
+    )
 
-
-for col, (value, label) in zip(metric_cols, metrics):
-
-    with col:
-
-        st.markdown(
-            f"""
-            <div class="metric-card">
-
-                <div class="metric-value">
-                    {value}
-                </div>
-
-                <div class="metric-label">
-                    {label}
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-
-# ============================================================
-# TWO OPERATING MODES
-# ============================================================
-
-st.markdown(
-    """
-    <div class="section-title">
-        Two Operating Modes
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-mode_cols = st.columns(2)
-
-
-with mode_cols[0]:
-
-    st.markdown(
-        """
-        <div class="info-card">
-
-            <h3>◉ Offline Mode</h3>
-
-            <p>
-                Default operating state. Audio is processed locally
-                for wake-word detection and local IoT actions.
-                No continuous cloud audio streaming is required.
-            </p>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
+with metric_columns[3]:
+    st.metric(
+        label="Wake Keyword",
+        value="Custom",
     )
 
 
-with mode_cols[1]:
+# ============================================================
+# EDGE ARCHITECTURE
+# ============================================================
 
-    st.markdown(
+st.header("VAANI Edge Architecture")
+
+st.write(
+    """
+    The architecture separates always-on local wake detection
+    from optional post-wake remote speech processing.
+    """
+)
+
+architecture = (
+    "🎙️ I2S MEMS Microphone"
+    "  →  Audio Capture"
+    "  →  MFCC / Log-Mel"
+    "  →  TinyML KWS"
+    "  →  Wake Decision"
+)
+
+st.info(architecture)
+
+architecture_columns = st.columns(2)
+
+with architecture_columns[0]:
+
+    st.subheader("NO — Stay Local")
+
+    st.success(
         """
-        <div class="info-card">
+        Wake keyword not detected.
 
-            <h3>↗ Online Mode</h3>
+        Continue listening locally and keep the
+        system in the low-resource edge state.
+        """
+    )
 
-            <p>
-                Activated only after wake detection when a command
-                requires remote ASR. The post-wake audio stream is
-                sent through Wi-Fi for remote processing.
-            </p>
 
-        </div>
-        """,
-        unsafe_allow_html=True,
+with architecture_columns[1]:
+
+    st.subheader("YES — Start Streaming")
+
+    st.warning(
+        """
+        Wake keyword detected.
+
+        Start Wi-Fi streaming → Remote ASR →
+        Response → Return to offline operation.
+        """
+    )
+
+
+# ============================================================
+# OPERATING MODES
+# ============================================================
+
+st.header("Two Operating Modes")
+
+mode_columns = st.columns(2)
+
+with mode_columns[0]:
+
+    st.subheader("◉ Offline Mode")
+
+    st.write(
+        """
+        Default operating state.
+
+        Audio is processed locally for wake-word
+        detection and local IoT actions.
+
+        No continuous cloud audio streaming is required.
+        """
+    )
+
+
+with mode_columns[1]:
+
+    st.subheader("↗ Online Mode")
+
+    st.write(
+        """
+        Activated only after wake detection when a
+        command requires remote ASR.
+
+        Post-wake audio is sent through Wi-Fi for
+        remote processing.
+        """
+    )
+
+
+# ============================================================
+# PROJECT PIPELINE
+# ============================================================
+
+st.header("Six-Part Engineering Pipeline")
+
+pipeline = [
+    "1. Audio Capture + Edge Listening",
+    "2. Custom Keyword Spotting AI",
+    "3. Ultra-Low-Resource Edge Optimization",
+    "4. Wake Detection + Audio Handoff",
+    "5. Low-Latency Streaming + Remote ASR",
+    "6. Testing + Benchmarking",
+]
+
+for item in pipeline:
+    st.write("• " + item)
+
+
+# ============================================================
+# VALIDATION
+# ============================================================
+
+st.header("Validation")
+
+validation_columns = st.columns(3)
+
+with validation_columns[0]:
+
+    st.subheader("Efficiency")
+
+    st.write(
+        """
+        • RAM / Flash footprint
+
+        • Idle CPU usage
+
+        • Edge inference cost
+        """
+    )
+
+
+with validation_columns[1]:
+
+    st.subheader("Accuracy")
+
+    st.write(
+        """
+        • True-positive rate
+
+        • False activations/hour
+
+        • Noise robustness
+        """
+    )
+
+
+with validation_columns[2]:
+
+    st.subheader("Latency")
+
+    st.write(
+        """
+        • Wake detection time
+
+        • Stream initiation
+
+        • First packet arrival
+
+        • P95 latency
+        """
     )
 
 
@@ -507,33 +370,17 @@ with mode_cols[1]:
 # PROJECT STATUS
 # ============================================================
 
-st.markdown(
+st.header("Project Status")
+
+st.info(
     """
-    <div class="section-title">
-        Project Status
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    **Current stage:** Interactive architecture and 3D digital-twin
+    simulation.
 
-
-st.markdown(
+    **Next engineering stages:** ESP32 firmware, custom keyword
+    dataset/model, physical measurements, latency logging,
+    and hardware validation.
     """
-    <div class="info-card">
-
-        <h3>Current Development</h3>
-
-        <p>
-            Interactive architecture and 3D digital-twin simulation
-            are being developed as the public demonstration layer.
-            The next engineering stages are the ESP32 firmware,
-            custom keyword dataset/model, physical measurements,
-            latency logging, and hardware validation.
-        </p>
-
-    </div>
-    """,
-    unsafe_allow_html=True,
 )
 
 
@@ -541,17 +388,9 @@ st.markdown(
 # FOOTER
 # ============================================================
 
-st.markdown(
-    """
-    <div class="footer">
+st.divider()
 
-        VAANI · SIH26172 · ISRO · Edge AI
-
-        <br>
-
-        Low-Latency · Efficient · Offline-First · Open Source
-
-    </div>
-    """,
-    unsafe_allow_html=True,
+st.caption(
+    "VAANI  •  SIH26172  •  ISRO  •  Edge AI  •  "
+    "Low-Latency  •  Efficient  •  Offline-First"
 )

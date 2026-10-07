@@ -1220,6 +1220,7 @@ section(
     "11",
     "Business Model",
     "How VAANI can move from a technical prototype into a sustainable B2B edge-AI product."
+)
 
 business = pd.DataFrame({
     "Customer": [
@@ -1584,6 +1585,7 @@ section(
     "17",
     "Research Sources",
     "Important external facts used throughout this portfolio."
+)
 
 source_names = {
     "S1": "SIH26172 Problem Statement",

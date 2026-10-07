@@ -1,374 +1,3991 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VAANI — SIH26172</title>
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>VAANI — Agent Command Center</title>
+
 <style>
-:root{
---bg:#02050a;--panel:rgba(6,12,20,.70);--panel2:rgba(10,20,31,.82);
---cyan:#71e7ff;--blue:#4d8dff;--violet:#9b7cff;--green:#65f3ae;
---orange:#ffbd68;--red:#ff6f91;--text:#effaff;--muted:#8ba0b1;
---line:rgba(130,210,255,.16);
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
-canvas#world{position:fixed;inset:0;width:100%;height:100%;z-index:0}
-#fx{position:fixed;inset:0;z-index:1;pointer-events:none;background:
-radial-gradient(circle at 50% 42%,transparent 0 22%,rgba(0,0,0,.13) 50%,rgba(0,0,0,.86) 100%),
-linear-gradient(180deg,rgba(1,4,8,.2),transparent 30%,rgba(1,3,7,.3));
+
+html {
+    scroll-behavior: smooth;
 }
-#noise{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .2s steps(2) infinite}
-@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(2%,-1%)}50%{transform:translate(-1%,2%)}75%{transform:translate(1%,1%)}100%{transform:translate(-2%,-2%)}}
-#app{position:relative;z-index:5}
-.top{position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;z-index:20;background:linear-gradient(180deg,rgba(2,5,10,.82),transparent);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.045)}
-.brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:.25em;font-size:13px}
-.mark{width:29px;height:29px;border:1px solid rgba(113,231,255,.65);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 25px rgba(72,200,255,.25)}
-.mark:after{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
-.live{font-size:9px;letter-spacing:.18em;color:#9ab0c0;display:flex;align-items:center;gap:8px}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 1.5s infinite}
-@keyframes pulse{50%{opacity:.3;transform:scale(.65)}}
-.nav{position:fixed;right:28px;top:95px;z-index:20;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
-.nav a{color:#667b8d;text-decoration:none;font-size:8px;letter-spacing:.17em;padding:5px 8px;border-right:1px solid transparent;transition:.2s}
-.nav a.active,.nav a:hover{color:var(--cyan);border-right-color:var(--cyan)}
-.progress{position:fixed;left:0;top:0;width:3px;height:100vh;z-index:30;background:rgba(255,255,255,.025)}
-.progress i{display:block;width:100%;height:0;background:linear-gradient(var(--violet),var(--cyan));box-shadow:0 0 15px var(--cyan)}
-.hero{min-height:100vh;display:flex;align-items:center;padding:110px 9vw 80px;position:relative}
-.hero-copy{max-width:620px;transition:transform .2s,opacity .2s}
-.kicker{font-size:10px;letter-spacing:.28em;color:var(--cyan);font-weight:800;margin-bottom:18px}
-h1{font-size:clamp(70px,11vw,155px);line-height:.78;letter-spacing:-.08em;margin:0 0 26px;font-weight:900;text-shadow:0 0 45px rgba(70,210,255,.12)}
-.hero h2{font-size:clamp(20px,2.4vw,34px);margin:0 0 15px;letter-spacing:-.025em}
-.hero p{max-width:590px;color:#8ea3b3;font-size:15px;line-height:1.8;margin:0}
-.chips{margin-top:25px;display:flex;gap:7px;flex-wrap:wrap}
-.chip{padding:7px 10px;border:1px solid rgba(113,231,255,.15);background:rgba(6,14,23,.5);color:#a9c0cf;font-size:8px;letter-spacing:.14em}
-.center-label{position:fixed;left:50%;top:67%;transform:translate(-50%,-50%);z-index:8;text-align:center;pointer-events:none;transition:.4s}
-.center-label .small{font-size:8px;letter-spacing:.28em;color:#61788a}
-.center-label .big{font-size:11px;letter-spacing:.22em;margin-top:7px;text-shadow:0 0 20px rgba(113,231,255,.3)}
-.hud{position:fixed;right:30px;top:100px;width:215px;z-index:15;pointer-events:none}
-.hudbox{padding:14px;border:1px solid var(--line);background:rgba(3,9,16,.58);backdrop-filter:blur(18px);margin-bottom:8px}
-.hudtitle{font-size:8px;letter-spacing:.2em;color:#627789;margin-bottom:8px}
-.state{font-size:17px;font-weight:750;letter-spacing:.1em}
-.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:9px}
-.row:last-child{border-bottom:0}
-.row span:first-child{color:#647a8c;letter-spacing:.1em}.row span:last-child{color:#d4f3ff}
-.meter{height:2px;background:rgba(255,255,255,.06);margin-top:8px}.meter i{display:block;height:100%;width:25%;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 10px var(--cyan);transition:width .35s}
-.scroll{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.25em;color:#526879;z-index:10;pointer-events:none}
-.scroll:before,.scroll:after{content:"";display:inline-block;width:40px;height:1px;background:#354b5d;vertical-align:middle;margin:0 10px}
-.chapter{min-height:100vh;display:flex;align-items:center;padding:90px 8vw;position:relative}
-.chapter.left{justify-content:flex-start}.chapter.right{justify-content:flex-end}
-.card{width:min(520px,90vw);padding:27px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(5,12,20,.83),rgba(3,8,14,.58));backdrop-filter:blur(16px);box-shadow:0 30px 100px rgba(0,0,0,.3);opacity:0;transform:translateY(50px);transition:opacity .9s,transform .9s}
-.chapter.visible .card{opacity:1;transform:none}
-.num{font-size:8px;letter-spacing:.24em;color:var(--cyan);margin-bottom:11px}
-.card h2{font-size:39px;letter-spacing:-.045em;margin:0 0 12px}
-.card p{font-size:13px;line-height:1.75;color:#8398a8;margin:0}
-.tag{display:inline-block;margin-top:17px;padding:7px 9px;border:1px solid rgba(255,255,255,.08);color:#adc2cf;font-size:8px;letter-spacing:.15em}
-.section{padding:120px 7vw;min-height:100vh;position:relative}
-.section-inner{max-width:1180px;margin:auto}
-.section-head{max-width:760px;margin-bottom:35px}
-.section-no{color:var(--cyan);font-size:9px;letter-spacing:.25em;font-weight:800;margin-bottom:10px}
-.section h2{font-size:clamp(38px,5vw,68px);letter-spacing:-.055em;line-height:.95;margin:0 0 15px}
-.section-head p{color:#8195a5;line-height:1.75;font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.panel{padding:20px;border:1px solid rgba(120,200,255,.12);background:rgba(5,12,20,.66);backdrop-filter:blur(15px);transition:.35s;position:relative;overflow:hidden}
-.panel:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(113,231,255,.05),transparent);transform:translateX(-100%);transition:.6s}
-.panel:hover{transform:translateY(-5px);border-color:rgba(113,231,255,.3);box-shadow:0 20px 55px rgba(0,0,0,.3)}.panel:hover:before{transform:translateX(100%)}
-.panel h3{margin:0 0 9px;font-size:15px}.panel p{margin:0;color:#7f94a5;font-size:11px;line-height:1.7}
-.metric{padding:19px;border:1px solid rgba(113,231,255,.13);background:rgba(6,14,23,.72);min-height:120px}
-.metric b{display:block;font-size:26px;letter-spacing:-.04em}.metric span{display:block;color:#7f94a5;font-size:10px;margin-top:7px}.metric small{display:block;color:var(--cyan);font-size:7px;letter-spacing:.15em;margin-top:13px}
-.info{padding:17px 19px;border-left:3px solid var(--cyan);background:rgba(113,231,255,.045);color:#a9bbc7;font-size:12px;line-height:1.7;margin:18px 0}
-.green{border-left-color:var(--green);background:rgba(101,243,174,.04)}.orange{border-left-color:var(--orange);background:rgba(255,189,104,.04)}
-table{width:100%;border-collapse:collapse;font-size:10px;background:rgba(4,10,17,.62);border:1px solid rgba(255,255,255,.07)}
-th,td{padding:11px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}th{color:#aeeeff;font-size:8px;letter-spacing:.12em;text-transform:uppercase}td{color:#8296a6}tr:hover td{background:rgba(113,231,255,.025)}
-.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;align-items:center}.flow div{padding:15px 8px;text-align:center;border:1px solid rgba(113,231,255,.17);background:rgba(7,15,24,.75);font-size:8px;letter-spacing:.1em;position:relative}.flow div:not(:last-child):after{content:"→";position:absolute;right:-8px;top:50%;color:var(--cyan);z-index:2}
-.footer{padding:80px 7vw 120px;text-align:center;color:#5f7484;font-size:10px;border-top:1px solid rgba(255,255,255,.06)}.footer b{color:#bceeff}
-.controls{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:25;display:flex;gap:7px;pointer-events:auto}
-button{font:inherit;background:rgba(3,9,16,.8);color:#dff8ff;border:1px solid rgba(113,231,255,.22);padding:9px 13px;font-size:8px;letter-spacing:.14em;cursor:pointer;backdrop-filter:blur(14px)}
-button:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(113,231,255,.15)}button.stop{color:#ffc3d0;border-color:rgba(255,111,145,.3)}
-@media(max-width:900px){.nav{display:none}.hud{right:12px;width:165px}.hero{padding-left:25px}.grid,.grid4{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.flow div:not(:last-child):after{display:none}}
-@media(max-width:600px){.top{padding:0 16px}.hud{transform:scale(.78);transform-origin:top right}.hero{padding:110px 20px 70px}.hero p{font-size:12px}.grid,.grid4{grid-template-columns:1fr}.chapter{padding:70px 20px}.card h2{font-size:31px}.section{padding:100px 20px}.center-label{top:57%}.controls{bottom:10px}.controls button{padding:8px 9px}.flow{grid-template-columns:1fr}}
+
+body {
+
+    background:
+        radial-gradient(
+            circle at 70% 10%,
+            rgba(111, 255, 163, 0.07),
+            transparent 28%
+        ),
+        #05070b;
+
+    color: #f2f5f3;
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+
+    --bg: #05070b;
+
+    --panel: #090c11;
+
+    --panel2: #0d1118;
+
+    --border: rgba(255,255,255,.08);
+
+    --border-bright:
+        rgba(255,255,255,.14);
+
+    --text: #f4f7f5;
+
+    --muted: #8c9692;
+
+    --green: #b7ff5a;
+
+    --green2: #70ff9d;
+
+    --blue: #72b7ff;
+
+    --orange: #ffbd69;
+
+    --red: #ff6f7d;
+
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: #05070b;
+}
+
+::-webkit-scrollbar-thumb {
+
+    background: #222a2e;
+
+    border-radius: 20px;
+}
+
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app {
+
+    display: flex;
+
+    min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+
+    width: 250px;
+
+    min-height: 100vh;
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #080b10,
+            #06080c
+        );
+
+    border-right: 1px solid var(--border);
+
+    padding: 22px 15px;
+
+    z-index: 100;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 0 9px 25px;
+
+}
+
+
+.logo-symbol {
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #d9ff87,
+            #67ff9a
+        );
+
+    color: #061007;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 0 30px
+        rgba(151,255,106,.15);
+
+}
+
+
+.logo-text {
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    letter-spacing: -.5px;
+
+}
+
+
+.logo-sub {
+
+    font-size: 9px;
+
+    color: #68736e;
+
+    margin-top: 2px;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* =========================================================
+   NAV
+========================================================= */
+
+.nav-label {
+
+    font-size: 9px;
+
+    color: #59615e;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.5px;
+
+    padding: 13px 10px 7px;
+
+}
+
+
+.nav-item {
+
+    width: 100%;
+
+    padding: 10px 11px;
+
+    border-radius: 7px;
+
+    color: #87908c;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+    margin-bottom: 2px;
+
+}
+
+
+.nav-item:hover {
+
+    color: #f2f5f3;
+
+    background:
+        rgba(255,255,255,.045);
+
+}
+
+
+.nav-item.active {
+
+    background:
+        rgba(183,255,90,.08);
+
+    color: var(--green);
+
+}
+
+
+.nav-icon {
+
+    width: 16px;
+
+    text-align: center;
+
+    opacity: .85;
+
+}
+
+
+.sidebar-bottom {
+
+    margin-top: auto;
+
+}
+
+
+.project-card {
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.025);
+
+    border-radius: 9px;
+
+}
+
+
+.project-title {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.project-sub {
+
+    color: #626c68;
+
+    font-size: 9px;
+
+    margin-top: 4px;
+
+}
+
+
+.agent-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 9px;
+
+    color: #89948f;
+
+    margin-top: 13px;
+
+}
+
+
+.status-dot {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 9px
+        var(--green);
+
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main {
+
+    margin-left: 250px;
+
+    width: calc(100% - 250px);
+
+    min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar {
+
+    height: 58px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 27px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 80;
+
+    background:
+        rgba(5,7,11,.82);
+
+    backdrop-filter:
+        blur(16px);
+
+}
+
+
+.breadcrumb {
+
+    display: flex;
+
+    gap: 8px;
+
+    align-items: center;
+
+    font-size: 11px;
+
+    color: #69736f;
+
+}
+
+
+.breadcrumb strong {
+
+    color: #d9dfdc;
+
+}
+
+
+.top-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+
+.icon-button {
+
+    width: 31px;
+    height: 31px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 7px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #89938f;
+
+    cursor: pointer;
+
+}
+
+
+.icon-button:hover {
+
+    border-color:
+        var(--border-bright);
+
+    color: white;
+
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content {
+
+    padding: 54px 50px 100px;
+
+    max-width: 1500px;
+
+    margin: auto;
+
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(360px,.75fr);
+
+    gap: 45px;
+
+    align-items: center;
+
+    margin-bottom: 55px;
+
+}
+
+
+.eyebrow {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--green);
+
+    font-size: 9px;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 16px;
+
+}
+
+
+.eyebrow-dot {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px var(--green);
+
+}
+
+
+h1 {
+
+    font-size:
+        clamp(46px,6vw,82px);
+
+    line-height: .92;
+
+    letter-spacing: -5px;
+
+    font-weight: 750;
+
+    max-width: 720px;
+
+}
+
+
+.gradient-text {
+
+    background:
+        linear-gradient(
+            100deg,
+            #fff,
+            #9ca7a1
+        );
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+
+}
+
+
+.hero-description {
+
+    max-width: 590px;
+
+    color: #89938f;
+
+    font-size: 14px;
+
+    line-height: 1.8;
+
+    margin-top: 25px;
+
+}
+
+
+.hero-buttons {
+
+    display: flex;
+
+    gap: 9px;
+
+    margin-top: 28px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.btn {
+
+    border: 1px solid var(--border);
+
+    background: #0c1016;
+
+    color: #eaf0ec;
+
+    padding: 10px 16px;
+
+    border-radius: 7px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+}
+
+
+.btn:hover {
+
+    transform: translateY(-1px);
+
+    border-color:
+        rgba(255,255,255,.22);
+
+}
+
+
+.btn-primary {
+
+    background: var(--green);
+
+    color: #071006;
+
+    border-color: var(--green);
+
+}
+
+
+.btn-primary:hover {
+
+    box-shadow:
+        0 0 30px
+        rgba(183,255,90,.15);
+
+}
+
+
+/* =========================================================
+   COMMAND CENTER
+========================================================= */
+
+.command {
+
+    border:
+        1px solid var(--border);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.04),
+            rgba(255,255,255,.015)
+        );
+
+    border-radius: 13px;
+
+    padding: 15px;
+
+    box-shadow:
+        0 25px 80px
+        rgba(0,0,0,.25);
+
+}
+
+
+.command-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 0 2px 13px;
+
+}
+
+
+.command-title {
+
+    font-size: 10px;
+
+    color: #78827e;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.1px;
+
+}
+
+
+.command-state {
+
+    font-size: 9px;
+
+    color: var(--green);
+
+}
+
+
+.command-input {
+
+    min-height: 108px;
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+    background: #06090e;
+
+    border-radius: 9px;
+
+    padding: 15px;
+
+}
+
+
+.command-input textarea {
+
+    width: 100%;
+
+    min-height: 63px;
+
+    background: transparent;
+
+    border: 0;
+
+    outline: none;
+
+    resize: none;
+
+    color: #eaf1ed;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+}
+
+
+.command-input textarea::placeholder {
+
+    color: #4d5753;
+
+}
+
+
+.command-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+.command-hint {
+
+    font-size: 9px;
+
+    color: #4f5955;
+
+}
+
+
+.run-button {
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background: var(--green);
+
+    color: #071006;
+
+    padding: 8px 13px;
+
+    font-weight: 800;
+
+    font-size: 10px;
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section {
+
+    margin-top: 70px;
+
+}
+
+
+.section-head {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    margin-bottom: 17px;
+
+}
+
+
+.section-title {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    letter-spacing: -.3px;
+
+}
+
+
+.section-description {
+
+    font-size: 10px;
+
+    color: #616b67;
+
+    margin-top: 4px;
+
+}
+
+
+.section-link {
+
+    font-size: 9px;
+
+    color: var(--green);
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   AGENT CARDS
+========================================================= */
+
+.agent-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap: 10px;
+
+}
+
+
+.agent-card {
+
+    min-height: 190px;
+
+    background:
+        linear-gradient(
+            150deg,
+            rgba(255,255,255,.035),
+            rgba(255,255,255,.012)
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 11px;
+
+    padding: 18px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition: .25s;
+
+}
+
+
+.agent-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(255,255,255,.14);
+
+}
+
+
+.agent-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(183,255,90,.05);
+
+    filter: blur(35px);
+
+    top: -80px;
+    right: -60px;
+
+}
+
+
+.agent-head {
+
+    display: flex;
+
+    justify-content: space-between;
+
+}
+
+
+.agent-number {
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 7px;
+
+    background:
+        rgba(183,255,90,.08);
+
+    color: var(--green);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 10px;
+
+}
+
+
+.agent-running {
+
+    font-size: 8px;
+
+    color: #64706b;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+}
+
+
+.agent-name {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    margin-top: 22px;
+
+}
+
+
+.agent-desc {
+
+    font-size: 10px;
+
+    color: #68736e;
+
+    line-height: 1.6;
+
+    margin-top: 6px;
+
+}
+
+
+.progress {
+
+    height: 3px;
+
+    background:
+        rgba(255,255,255,.06);
+
+    margin-top: 24px;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+}
+
+
+.progress-bar {
+
+    height: 100%;
+
+    width: 73%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px
+        rgba(183,255,90,.5);
+
+    transition: width .8s;
+
+}
+
+
+.agent-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 8px;
+
+    font-size: 8px;
+
+    color: #4f5955;
+
+}
+
+
+/* =========================================================
+   DIGITAL TWIN
+========================================================= */
+
+.twin {
+
+    min-height: 500px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(100,255,150,.06),
+            transparent 35%
+        ),
+        #070a0f;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+.twin-grid {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .22;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.04) 1px,
+            transparent 1px
+        );
+
+    background-size: 35px 35px;
+
+    transform:
+        perspective(500px)
+        rotateX(55deg)
+        scale(1.7);
+
+    transform-origin:
+        center bottom;
+
+    bottom: -120px;
+
+}
+
+
+.twin-center {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    width: 145px;
+    height: 145px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(183,255,90,.3);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(183,255,90,.15),
+            rgba(183,255,90,.015) 60%
+        );
+
+    box-shadow:
+        0 0 70px
+        rgba(183,255,90,.08);
+
+}
+
+
+.twin-core {
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #e4ffb2,
+            #75ff9b 50%,
+            #0b1710
+        );
+
+    box-shadow:
+        0 0 50px
+        rgba(121,255,153,.55);
+
+    animation:
+        pulse 2s ease-in-out infinite;
+
+}
+
+
+@keyframes pulse {
+
+    0%,100% {
+        transform: scale(.92);
+        opacity: .85;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+
+}
+
+
+.orbit {
+
+    position: absolute;
+
+    border:
+        1px dashed
+        rgba(183,255,90,.13);
+
+    border-radius: 50%;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%,-50%)
+        rotateX(65deg);
+
+}
+
+
+.orbit.one {
+
+    width: 290px;
+    height: 290px;
+
+}
+
+
+.orbit.two {
+
+    width: 470px;
+    height: 470px;
+
+}
+
+
+.node {
+
+    position: absolute;
+
+    width: 155px;
+
+    padding: 13px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(8,11,16,.9);
+
+    backdrop-filter:
+        blur(10px);
+
+    border-radius: 9px;
+
+    z-index: 10;
+
+}
+
+
+.node.mic {
+
+    left: 7%;
+    top: 29%;
+
+}
+
+
+.node.mcu {
+
+    right: 7%;
+    top: 29%;
+
+}
+
+
+.node.asr {
+
+    left: 7%;
+    bottom: 16%;
+
+}
+
+
+.node.response {
+
+    right: 7%;
+    bottom: 16%;
+
+}
+
+
+.node-icon {
+
+    color: var(--green);
+
+    font-size: 14px;
+
+}
+
+
+.node-title {
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    margin-top: 8px;
+
+}
+
+
+.node-sub {
+
+    font-size: 8px;
+
+    color: #626d68;
+
+    line-height: 1.5;
+
+    margin-top: 4px;
+
+}
+
+
+.node-status {
+
+    font-size: 7px;
+
+    color: var(--green);
+
+    margin-top: 9px;
+
+}
+
+
+.connection {
+
+    position: absolute;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(183,255,90,.35),
+            transparent
+        );
+
+    transform-origin: left center;
+
+}
+
+
+.connection.c1 {
+
+    width: 250px;
+
+    left: 18%;
+
+    top: 40%;
+
+    transform:
+        rotate(8deg);
+
+}
+
+
+.connection.c2 {
+
+    width: 250px;
+
+    right: 18%;
+
+    top: 40%;
+
+    transform:
+        rotate(172deg);
+
+}
+
+
+.packet {
+
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    background: var(--green);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 10px
+        var(--green);
+
+    animation:
+        packet 2.5s linear infinite;
+
+}
+
+
+@keyframes packet {
+
+    0% {
+        transform:
+            translateX(0);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translateX(230px);
+        opacity: 0;
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVITY
+========================================================= */
+
+.activity-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr .55fr;
+
+    gap: 10px;
+
+}
+
+
+.activity-panel {
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.02);
+
+    border-radius: 11px;
+
+    padding: 15px;
+
+}
+
+
+.activity-row {
+
+    display: flex;
+
+    gap: 11px;
+
+    padding: 13px 0;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.045);
+
+}
+
+
+.activity-row:last-child {
+
+    border-bottom: 0;
+
+}
+
+
+.activity-time {
+
+    font-size: 8px;
+
+    color: #515b57;
+
+    width: 45px;
+
+}
+
+
+.activity-message {
+
+    font-size: 10px;
+
+    color: #a4ada9;
+
+}
+
+
+.activity-message strong {
+
+    color: #e9efeb;
+
+}
+
+
+.activity-dot {
+
+    width: 6px;
+    height: 6px;
+
+    background: var(--green);
+
+    border-radius: 50%;
+
+    margin-top: 3px;
+
+}
+
+
+/* =========================================================
+   ARTIFACTS
+========================================================= */
+
+.artifact-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap: 9px;
+
+}
+
+
+.artifact {
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.02);
+
+    border-radius: 9px;
+
+    padding: 13px;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+}
+
+
+.artifact:hover {
+
+    background:
+        rgba(255,255,255,.045);
+
+}
+
+
+.artifact-icon {
+
+    font-size: 15px;
+
+    color: var(--green);
+
+}
+
+
+.artifact-name {
+
+    margin-top: 14px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+
+.artifact-type {
+
+    color: #5d6763;
+
+    font-size: 8px;
+
+    margin-top: 4px;
+
+}
+
+
+/* =========================================================
+   TERMINAL
+========================================================= */
+
+.terminal {
+
+    background: #030507;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 11px;
+
+    overflow: hidden;
+
+}
+
+
+.terminal-header {
+
+    padding: 9px 13px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+}
+
+
+.terminal-dot {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #4d5652;
+
+}
+
+
+.terminal-title {
+
+    margin-left: 6px;
+
+    font-size: 8px;
+
+    color: #626c68;
+
+}
+
+
+.terminal-body {
+
+    padding: 17px;
+
+    min-height: 180px;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 9px;
+
+    color: #84908a;
+
+    line-height: 1.8;
+
+}
+
+
+.term-green {
+
+    color: var(--green);
+
+}
+
+
+.term-white {
+
+    color: #dce4df;
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+
+    margin-top: 90px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid var(--border);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    color: #49524f;
+
+    font-size: 8px;
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    background:
+        rgba(0,0,0,.7);
+
+    backdrop-filter:
+        blur(10px);
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.modal.show {
+
+    display: flex;
+
+}
+
+
+.modal-card {
+
+    width: min(720px,100%);
+
+    max-height: 85vh;
+
+    overflow: auto;
+
+    background: #0a0e14;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 13px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 30px 100px
+        rgba(0,0,0,.6);
+
+}
+
+
+.modal-title {
+
+    font-size: 20px;
+
+    font-weight: 750;
+
+}
+
+
+.modal-text {
+
+    margin-top: 13px;
+
+    color: #7f8985;
+
+    font-size: 11px;
+
+    line-height: 1.8;
+
+}
+
+
+.modal-close {
+
+    float: right;
+
+    cursor: pointer;
+
+    color: #89938f;
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+
+    position: fixed;
+
+    right: 25px;
+
+    bottom: 25px;
+
+    z-index: 2000;
+
+    background: #0d1318;
+
+    border:
+        1px solid
+        rgba(183,255,90,.2);
+
+    color: #dce5df;
+
+    padding: 11px 15px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+
+    transform:
+        translateY(100px);
+
+    opacity: 0;
+
+    transition: .3s;
+
+}
+
+
+.toast.show {
+
+    transform:
+        translateY(0);
+
+    opacity: 1;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1100px) {
+
+    .hero {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .agent-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+    .artifact-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+}
+
+
+@media(max-width:800px) {
+
+    .sidebar {
+
+        width: 65px;
+
+        padding: 18px 9px;
+
+    }
+
+    .logo-text,
+    .logo-sub,
+    .nav-label,
+    .nav-item span,
+    .project-card,
+    .sidebar-bottom .agent-status {
+
+        display: none;
+
+    }
+
+    .logo {
+
+        justify-content: center;
+
+        padding-left: 0;
+
+        padding-right: 0;
+
+    }
+
+    .nav-item {
+
+        justify-content: center;
+
+    }
+
+    .main {
+
+        margin-left: 65px;
+
+        width: calc(100% - 65px);
+
+    }
+
+    .content {
+
+        padding:
+            40px 20px 80px;
+
+    }
+
+    .hero {
+
+        margin-bottom: 35px;
+
+    }
+
+    h1 {
+
+        letter-spacing: -3px;
+
+    }
+
+    .activity-layout {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .node {
+
+        width: 120px;
+
+    }
+
+    .node.mic {
+
+        left: 3%;
+
+    }
+
+    .node.mcu {
+
+        right: 3%;
+
+    }
+
+}
+
+
+@media(max-width:560px) {
+
+    .topbar {
+
+        padding: 0 14px;
+
+    }
+
+    .breadcrumb {
+
+        font-size: 9px;
+
+    }
+
+    .content {
+
+        padding:
+            30px 13px 60px;
+
+    }
+
+    .agent-grid,
+    .artifact-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    h1 {
+
+        font-size: 47px;
+
+    }
+
+    .twin {
+
+        min-height: 430px;
+
+    }
+
+    .node {
+
+        width: 105px;
+
+        padding: 9px;
+
+    }
+
+    .node-title {
+
+        font-size: 8px;
+
+    }
+
+    .node-sub {
+
+        font-size: 7px;
+
+    }
+
+}
+
 </style>
+
 </head>
+
+
 <body>
-<canvas id="world"></canvas><div id="fx"></div><div id="noise"></div>
-<div class="progress"><i id="progress"></i></div>
 
-<div id="app">
-<header class="top"><div class="brand"><div class="mark"></div>VAANI</div><div class="live"><span class="dot"></span><span id="liveText">SYSTEM ONLINE · EDGE INTELLIGENCE</span></div></header>
 
-<nav class="nav" id="nav">
-<a href="#hero">00 · CORE</a><a href="#problem">01 · PROBLEM</a><a href="#solution">02 · SOLUTION</a><a href="#evidence">03 · EVIDENCE</a><a href="#hardware">04 · HARDWARE</a><a href="#validation">05 · VALIDATION</a><a href="#market">06 · MARKET</a><a href="#roadmap">07 · ROADMAP</a><a href="#sources">08 · SOURCES</a>
-</nav>
+<div class="app">
 
-<div class="hud">
-<div class="hudbox"><div class="hudtitle">NEURAL STATE</div><div class="state" id="state">IDLE</div><div class="meter"><i id="meter"></i></div></div>
-<div class="hudbox">
-<div class="row"><span>AUDIO</span><span id="audio">12%</span></div>
-<div class="row"><span>LATENCY</span><span id="latency">20 ms</span></div>
-<div class="row"><span>CONFIDENCE</span><span id="confidence">98.4%</span></div>
-<div class="row"><span>MEMORY</span><span>72 KB</span></div>
-<div class="row"><span>CPU</span><span id="cpu">6.2%</span></div>
+
+<!-- =====================================================
+     SIDEBAR
+====================================================== -->
+
+<aside class="sidebar">
+
+
+<div class="logo">
+
+    <div class="logo-symbol">
+        V
+    </div>
+
+    <div>
+
+        <div class="logo-text">
+            VAANI
+        </div>
+
+        <div class="logo-sub">
+            EDGE AI SYSTEM
+        </div>
+
+    </div>
+
 </div>
+
+
+<div class="nav-label">
+    Workspace
 </div>
 
-<div class="center-label"><div class="small" id="coreSmall">SYSTEM READY</div><div class="big">VAANI INTELLIGENCE CORE</div></div>
 
-<section class="hero" id="hero">
-<div class="hero-copy" id="heroCopy">
-<div class="kicker">SMART INDIA HACKATHON 2026 · SIH26172 · ISRO · HARDWARE</div>
-<h1>VAANI</h1>
-<h2>Local Wake. Remote Intelligence.</h2>
-<p>An edge-first voice activation architecture where the device continuously understands <b>when to listen</b> locally, then moves only useful speech into remote intelligence.</p>
-<div class="chips"><span class="chip">CUSTOM KWS</span><span class="chip">TINYML</span><span class="chip">EDGE AI</span><span class="chip">OFFLINE-FIRST</span><span class="chip">ESP32-S3</span><span class="chip">POST-WAKE STREAMING</span></div>
+<div
+    class="nav-item active"
+    data-target="overview"
+>
+
+    <div class="nav-icon">⌂</div>
+
+    <span>Overview</span>
+
 </div>
+
+
+<div
+    class="nav-item"
+    data-target="agents"
+>
+
+    <div class="nav-icon">✦</div>
+
+    <span>Agents</span>
+
+</div>
+
+
+<div
+    class="nav-item"
+    data-target="twin"
+>
+
+    <div class="nav-icon">◈</div>
+
+    <span>Digital Twin</span>
+
+</div>
+
+
+<div
+    class="nav-item"
+    data-target="artifacts"
+>
+
+    <div class="nav-icon">□</div>
+
+    <span>Artifacts</span>
+
+</div>
+
+
+<div
+    class="nav-item"
+    data-target="terminal"
+>
+
+    <div class="nav-icon">›_</div>
+
+    <span>Terminal</span>
+
+</div>
+
+
+<div class="nav-label">
+    Project
+</div>
+
+
+<div class="sidebar-bottom">
+
+    <div class="project-card">
+
+        <div class="project-title">
+            VAANI / SIH26172
+        </div>
+
+        <div class="project-sub">
+            ISRO · Department of Space
+        </div>
+
+    </div>
+
+
+    <div class="agent-status">
+
+        <div class="status-dot"></div>
+
+        Local agent online
+
+    </div>
+
+</div>
+
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN
+====================================================== -->
+
+<main class="main">
+
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+    <div class="breadcrumb">
+
+        <span>VAANI</span>
+
+        <span>/</span>
+
+        <strong>Command Center</strong>
+
+    </div>
+
+
+    <div class="top-actions">
+
+        <div
+            class="icon-button"
+            id="voiceButton"
+            title="Voice command"
+        >
+            ◉
+        </div>
+
+        <div
+            class="icon-button"
+            id="architectureButton"
+            title="Architecture"
+        >
+            ?
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="content">
+
+
+<!-- =====================================================
+     HERO
+====================================================== -->
+
+<section id="overview" class="hero">
+
+
+<div>
+
+    <div class="eyebrow">
+
+        <div class="eyebrow-dot"></div>
+
+        SIH26172 · EDGE AI · ISRO
+
+    </div>
+
+
+    <h1>
+
+        Build with
+        <span class="gradient-text">
+            VAANI.
+        </span>
+
+    </h1>
+
+
+    <p class="hero-description">
+
+        An offline-first voice activation system
+        designed for low latency edge devices.
+        VAANI detects the wake word locally,
+        keeps continuous audio off the cloud,
+        and activates remote intelligence only
+        when needed.
+
+    </p>
+
+
+    <div class="hero-buttons">
+
+        <button
+            class="btn btn-primary"
+            id="runAgent"
+        >
+            Run VAANI Agent
+        </button>
+
+
+        <button
+            class="btn"
+            id="openTwin"
+        >
+            Open Digital Twin
+        </button>
+
+
+        <button
+            class="btn"
+            id="viewArchitecture"
+        >
+            View Architecture
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- COMMAND BOX -->
+
+<div class="command">
+
+    <div class="command-top">
+
+        <div class="command-title">
+            VAANI Agent
+        </div>
+
+        <div
+            class="command-state"
+            id="commandState"
+        >
+            ● Ready
+        </div>
+
+    </div>
+
+
+    <div class="command-input">
+
+        <textarea
+            id="commandInput"
+            placeholder="Tell VAANI what to do..."
+        ></textarea>
+
+
+        <div class="command-footer">
+
+            <div class="command-hint">
+
+                Natural language command
+
+            </div>
+
+
+            <button
+                class="run-button"
+                id="commandRun"
+            >
+                Run ↵
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 </section>
 
-<section class="chapter left" data-state="LISTENING"><div class="card"><div class="num">01 · VOICE INPUT</div><h2>The world speaks.</h2><p>The microphone captures the acoustic scene while VAANI keeps the first layer of intelligence local, private and lightweight.</p><span class="tag">I2S MEMS · AUDIO STREAM</span></div></section>
-<section class="chapter right" data-state="PROCESSING"><div class="card"><div class="num">02 · EDGE PROCESSING</div><h2>Intelligence starts here.</h2><p>Audio reaches the ESP32 edge device, where the signal is conditioned before the custom keyword model evaluates it.</p><span class="tag">ESP32 · LOW POWER</span></div></section>
-<section class="chapter left" data-state="WAKE DETECTED"><div class="card"><div class="num">03 · KEYWORD DETECTION</div><h2>One phrase changes the state.</h2><p>The local KWS model watches continuously. A confident match wakes the rest of the pipeline without streaming everything to the cloud.</p><span class="tag">CUSTOM KWS · ON DEVICE</span></div></section>
-<section class="chapter right" data-state="ASR"><div class="card"><div class="num">04 · NETWORK HANDOFF</div><h2>Only useful audio moves.</h2><p>After wake detection, the following audio is routed toward the remote recognition layer with a deliberate low-latency handoff.</p><span class="tag">WI-FI · DATA PACKETS</span></div></section>
-<section class="chapter left" data-state="RESPONSE"><div class="card"><div class="num">05 · REMOTE ASR</div><h2>Speech becomes language.</h2><p>The remote ASR service receives the active speech stream and converts it into structured text for the assistant pipeline.</p><span class="tag">ASR · TRANSCRIPTION</span></div></section>
 
-<section class="section" id="problem"><div class="section-inner">
-<div class="section-head"><div class="section-no">01 · THE PROBLEM</div><h2>Continuous listening should not mean continuous cloud processing.</h2><p>VAANI addresses the engineering gap between always-on voice activation and resource-constrained edge hardware.</p></div>
-<div class="grid">
-<div class="panel"><h3>Continuous Listening</h3><p>The edge device inspects incoming audio continuously without requiring a full remote speech stack to run all the time.</p></div>
-<div class="panel"><h3>False Activation</h3><p>Incorrect wake events can trigger unnecessary recording, network transmission and speech-recognition processing.</p></div>
-<div class="panel"><h3>Low Latency</h3><p>The system measures the path from keyword ending to local detection, stream start and first remote packet.</p></div>
-</div>
-<div class="info green"><b>Core requirement:</b> keep the wake decision local; open the network speech path only after a valid custom wake event.</div>
-</div></section>
 
-<section class="section" id="solution"><div class="section-inner">
-<div class="section-head"><div class="section-no">02 · VAANI SOLUTION</div><h2>A living edge-to-cloud pipeline.</h2><p>The 3D world behind this page represents the actual intended architecture rather than being a decorative demo.</p></div>
-<div class="flow"><div>MIC</div><div>DSP</div><div>CUSTOM KWS</div><div>WAKE EVENT</div><div>REMOTE ASR</div><div>RESPONSE</div></div>
-<div class="grid" style="margin-top:20px">
-<div class="panel"><h3>LOCAL PATH</h3><p>Microphone → DSP → TinyML KWS → confidence decision. This path operates continuously on the edge device.</p></div>
-<div class="panel"><h3>NETWORK PATH</h3><p>Wake → pre-roll → audio streaming → remote ASR → application. This path activates only after a valid wake event.</p></div>
-<div class="panel"><h3>EDGE GATE</h3><p>The wake decision is the architectural boundary between low-power local intelligence and heavier remote processing.</p></div>
-</div>
-</div></section>
+<!-- =====================================================
+     AGENTS
+====================================================== -->
 
-<section class="section" id="evidence"><div class="section-inner">
-<div class="section-head"><div class="section-no">03 · EVIDENCE</div><h2>Numbers are shown with their evidence status.</h2><p>External market and connectivity figures are context, not VAANI measurements.</p></div>
-<div class="grid4">
-<div class="metric"><b>₹3,516 Cr</b><span>India voice/speech market · 2025</span><small>EXTERNAL ESTIMATE</small></div>
-<div class="metric"><b>₹4,811 Cr</b><span>Modeled conversion of India IoT 2025 context</span><small>EXTERNAL CONTEXT</small></div>
-<div class="metric"><b>42.77 Cr</b><span>Rural internet subscribers · Sep 2025</span><small>EXTERNAL</small></div>
-<div class="metric"><b>98.09%</b><span>Reported mobile connectivity of villages · Dec 2025</span><small>EXTERNAL</small></div>
-</div>
-<div class="info orange"><b>Evidence rule:</b> external benchmarks and market estimates are never presented as achieved VAANI hardware performance.</div>
-</div></section>
+<section
+    class="section"
+    id="agents"
+>
 
-<section class="section" id="hardware"><div class="section-inner">
-<div class="section-head"><div class="section-no">04 · PHYSICAL HARDWARE</div><h2>The 3D circuit is the system architecture.</h2><p>Click components in the 3D world. Scroll through the page to watch the system move from voice input to response.</p></div>
-<table><tr><th>Component</th><th>Role</th><th>Why it matters</th></tr>
-<tr><td>ESP32-S3</td><td>Edge MCU + local inference + connectivity</td><td>MCU-class deployment</td></tr>
-<tr><td>I2S MEMS microphone</td><td>Digital audio capture</td><td>Low-noise digital interface</td></tr>
-<tr><td>TinyML runtime</td><td>Local KWS inference</td><td>Low-resource inference</td></tr>
-<tr><td>Wi-Fi</td><td>Post-wake transport</td><td>Fast handoff after wake</td></tr>
-<tr><td>Remote ASR backend</td><td>Speech recognition after activation</td><td>Heavy processing stays off MCU</td></tr>
-</table>
-</div></section>
 
-<section class="section" id="validation"><div class="section-inner">
-<div class="section-head"><div class="section-no">05 · SIH VALIDATION</div><h2>Build the proof into the interface.</h2><p>Every important claim maps to a reproducible hardware measurement.</p></div>
-<table><tr><th>Metric</th><th>Engineering target</th><th>How VAANI measures it</th></tr>
-<tr><td>RAM</td><td>&lt;256 KB</td><td>Peak runtime + model arena + buffers</td></tr>
-<tr><td>Idle CPU</td><td>&lt;10%</td><td>Continuous idle listening</td></tr>
-<tr><td>True-positive rate</td><td>High</td><td>Correct detections / wake trials</td></tr>
-<tr><td>False activations/hour</td><td>Near zero</td><td>Long-duration wake test</td></tr>
-<tr><td>Inference latency</td><td>Low</td><td>DSP + model execution timing</td></tr>
-<tr><td>Wake → ASR</td><td>T3 − T0</td><td>Mean / median / P95 timestamp log</td></tr>
-</table>
-<div class="info"><b>Latency chain:</b> T0 keyword ends → T1 local detection → T2 stream starts → T3 first server packet.</div>
-</div></section>
+<div class="section-head">
 
-<section class="section" id="market"><div class="section-inner">
-<div class="section-head"><div class="section-no">06 · MARKET + BUSINESS</div><h2>From reference technology to deployment.</h2><p>The commercialization model can combine custom KWS, firmware integration, hardware, support and deployment services.</p></div>
-<div class="grid4">
-<div class="metric"><b>₹3,516 Cr</b><span>TAM · external 2025 voice/speech estimate</span><small>EXTERNAL</small></div>
-<div class="metric"><b>₹879 Cr</b><span>SAM · modeled 25% subset</span><small>MODELED</small></div>
-<div class="metric"><b>₹26.4 Cr</b><span>SOM · modeled 3% SAM scenario</span><small>PLANNING</small></div>
-<div class="metric"><b>₹0.??</b><span>ASR cost depends on actual usage</span><small>MEASURE</small></div>
-</div>
-<div class="grid" style="margin-top:18px">
-<div class="panel"><h3>IoT OEM</h3><p>Custom KWS + firmware integration, per-device or product-family licensing.</p></div>
-<div class="panel"><h3>Industrial / Enterprise</h3><p>Reference design, fleet deployment, support and updates.</p></div>
-<div class="panel"><h3>Government / Public Sector</h3><p>Local or low-connectivity voice interfaces and project implementation.</p></div>
-</div>
-</div></section>
+    <div>
 
-<section class="section" id="roadmap"><div class="section-inner">
-<div class="section-head"><div class="section-no">07 · ROADMAP</div><h2>Prototype → measured device → deployment.</h2><p>The animation is intentionally tied to the real engineering roadmap.</p></div>
-<div class="grid">
-<div class="panel"><h3>01 · Architecture</h3><p>Problem-statement traceability and system architecture.</p></div>
-<div class="panel"><h3>02 · Dataset</h3><p>Custom keyword, negatives, noise and speaker diversity.</p></div>
-<div class="panel"><h3>03 · TinyML</h3><p>Compact KWS with quantization and memory profiling.</p></div>
-<div class="panel"><h3>04 · MCU</h3><p>Real-time microphone and local inference.</p></div>
-<div class="panel"><h3>05 · Wake Handoff</h3><p>Ring buffer and post-wake streaming.</p></div>
-<div class="panel"><h3>06 · Hardening</h3><p>Noise, distance and unseen-speaker tests.</p></div>
-<div class="panel"><h3>07 · Demonstration</h3><p>Physical device plus interactive digital twin.</p></div>
-<div class="panel"><h3>08 · Productization</h3><p>Pilot fleet, OTA, monitoring and support.</p></div>
-</div>
-</div></section>
+        <div class="section-title">
+            Active agents
+        </div>
 
-<section class="section" id="stack"><div class="section-inner">
-<div class="section-head"><div class="section-no">08 · TECHNOLOGY</div><h2>One visual language across the stack.</h2></div>
-<table><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
-<tr><td>Audio</td><td>I2S MEMS microphone</td><td>Continuous audio capture</td></tr>
-<tr><td>DSP</td><td>MFCC / Log-Mel</td><td>Compact feature extraction</td></tr>
-<tr><td>AI</td><td>Custom TinyML KWS</td><td>Wake-word classification</td></tr>
-<tr><td>Runtime</td><td>TensorFlow Lite Micro / equivalent</td><td>MCU inference</td></tr>
-<tr><td>MCU</td><td>ESP32-S3</td><td>Edge execution</td></tr>
-<tr><td>Connectivity</td><td>Wi-Fi</td><td>Post-wake communication</td></tr>
-<tr><td>Backend</td><td>Python / remote ASR</td><td>Heavy speech processing</td></tr>
-<tr><td>Visualization</td><td>HTML + CSS + Three.js</td><td>Interactive system twin</td></tr>
-</table>
-</div></section>
+        <div class="section-description">
+            Autonomous engineering workflows
+        </div>
 
-<section class="section" id="sources"><div class="section-inner">
-<div class="section-head"><div class="section-no">09 · SOURCES</div><h2>Research-backed. Clearly labelled.</h2><p>The portfolio distinguishes external evidence, modeled assumptions and future VAANI measurements.</p></div>
-<div class="grid">
-<div class="panel"><h3>S1 · SIH26172</h3><p>Official Smart India Hackathon problem statement.</p></div>
-<div class="panel"><h3>S2 · India Voice Market</h3><p>External India speech and voice recognition market estimate.</p></div>
-<div class="panel"><h3>S3 · India IoT</h3><p>External India IoT market context.</p></div>
-<div class="panel"><h3>S4 · Cloud STT Pricing</h3><p>Public reference pricing used only for cost scenarios.</p></div>
-<div class="panel"><h3>S5 · Misactivation Research</h3><p>External smart-speaker false activation research context.</p></div>
-<div class="panel"><h3>S9 · ESP32-S3</h3><p>Espressif hardware documentation and datasheet.</p></div>
-<div class="panel"><h3>S11 · Arm KWS</h3><p>Embedded keyword spotting feasibility reference.</p></div>
-<div class="panel"><h3>S12 · Speech Commands</h3><p>Google Research speech dataset reference.</p></div>
-</div>
-</div></section>
+    </div>
 
-<footer class="footer"><b>VAANI · SIH26172</b><br><br>Edge-first voice activation for low-power intelligent devices.<br><br>External figures are identified as external. TAM/SAM/SOM values are modeled. Hardware performance must be measured before being labelled as achieved.</footer>
 
-<div class="controls"><button id="activate">ACTIVATE VAANI</button><button class="stop" id="stop">STOP TEST</button><button id="reset">RESET VIEW</button></div>
-<div class="scroll" id="scrollHint">MOVE · SCROLL · EXPLORE</div>
+    <div
+        class="section-link"
+        id="runAll"
+    >
+        Run all →
+    </div>
+
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+
+<div class="agent-grid">
+
+
+<!-- AGENT 1 -->
+
+<div class="agent-card">
+
+
+<div class="agent-head">
+
+    <div class="agent-number">
+        01
+    </div>
+
+    <div class="agent-running">
+
+        <div class="status-dot"></div>
+
+        Running
+
+    </div>
+
+</div>
+
+
+<div class="agent-name">
+    KWS Validation
+</div>
+
+
+<div class="agent-desc">
+
+    Validate the custom wake-word
+    model against noise and false
+    activation conditions.
+
+</div>
+
+
+<div class="progress">
+
+    <div
+        class="progress-bar"
+        data-progress="73"
+    ></div>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>MFCC → DS-CNN → INT8</span>
+
+    <span class="progress-value">
+        73%
+    </span>
+
+</div>
+
+
+</div>
+
+
+
+<!-- AGENT 2 -->
+
+<div class="agent-card">
+
+
+<div class="agent-head">
+
+    <div class="agent-number">
+        02
+    </div>
+
+    <div class="agent-running">
+
+        <div class="status-dot"></div>
+
+        Running
+
+    </div>
+
+</div>
+
+
+<div class="agent-name">
+    ESP32 Deployment
+</div>
+
+
+<div class="agent-desc">
+
+    Prepare the lightweight
+    TensorFlow Lite Micro model
+    for edge inference.
+
+</div>
+
+
+<div class="progress">
+
+    <div
+        class="progress-bar"
+        data-progress="61"
+    ></div>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>RAM &lt; 256 KB</span>
+
+    <span class="progress-value">
+        61%
+    </span>
+
+</div>
+
+
+</div>
+
+
+
+<!-- AGENT 3 -->
+
+<div class="agent-card">
+
+
+<div class="agent-head">
+
+    <div class="agent-number">
+        03
+    </div>
+
+    <div class="agent-running">
+
+        <div class="status-dot"></div>
+
+        Running
+
+    </div>
+
+</div>
+
+
+<div class="agent-name">
+    Wake → ASR Latency
+</div>
+
+
+<div class="agent-desc">
+
+    Measure T0 → T3 latency from
+    keyword end to first remote
+    ASR packet.
+
+</div>
+
+
+<div class="progress">
+
+    <div
+        class="progress-bar"
+        data-progress="48"
+    ></div>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>P95 target &lt; 500 ms</span>
+
+    <span class="progress-value">
+        48%
+    </span>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     DIGITAL TWIN
+====================================================== -->
+
+<section
+    class="section"
+    id="twin"
+>
+
+
+<div class="section-head">
+
+    <div>
+
+        <div class="section-title">
+            Digital Twin
+        </div>
+
+        <div class="section-description">
+            Live software representation of the VAANI pipeline
+        </div>
+
+    </div>
+
+    <div class="section-link">
+        LIVE SIMULATION
+    </div>
+
+</div>
+
+
+
+<div class="twin">
+
+
+<div class="twin-grid"></div>
+
+
+<div class="orbit one"></div>
+
+<div class="orbit two"></div>
+
+
+<div class="twin-center">
+
+    <div class="twin-core"></div>
+
+</div>
+
+
+<!-- MIC -->
+
+<div class="node mic">
+
+    <div class="node-icon">
+        ◉
+    </div>
+
+    <div class="node-title">
+        I2S MEMS MIC
+    </div>
+
+    <div class="node-sub">
+        16 kHz audio input
+    </div>
+
+    <div class="node-status">
+        ● STREAMING
+    </div>
+
+</div>
+
+
+<!-- MCU -->
+
+<div class="node mcu">
+
+    <div class="node-icon">
+        ◈
+    </div>
+
+    <div class="node-title">
+        ESP32-S3
+    </div>
+
+    <div class="node-sub">
+        MFCC · KWS · INT8
+    </div>
+
+    <div class="node-status">
+        ● LOCAL
+    </div>
+
+</div>
+
+
+<!-- ASR -->
+
+<div class="node asr">
+
+    <div class="node-icon">
+        ⇄
+    </div>
+
+    <div class="node-title">
+        REMOTE ASR
+    </div>
+
+    <div class="node-sub">
+        Activated after wake
+    </div>
+
+    <div class="node-status">
+        ● READY
+    </div>
+
+</div>
+
+
+<!-- RESPONSE -->
+
+<div class="node response">
+
+    <div class="node-icon">
+        ◇
+    </div>
+
+    <div class="node-title">
+        RESPONSE
+    </div>
+
+    <div class="node-sub">
+        Command result
+    </div>
+
+    <div class="node-status">
+        ● ONLINE
+    </div>
+
+</div>
+
+
+<div class="connection c1"></div>
+
+<div class="connection c2"></div>
+
+
+<div
+    class="packet"
+    style="
+        left:18%;
+        top:40%;
+    "
+></div>
+
+
+<div
+    class="packet"
+    style="
+        left:45%;
+        top:52%;
+        animation-delay:1s;
+    "
+></div>
+
+
+<div
+    class="packet"
+    style="
+        left:50%;
+        top:52%;
+        animation-delay:1.7s;
+    "
+></div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ACTIVITY
+====================================================== -->
+
+<section class="section">
+
+
+<div class="section-head">
+
+    <div>
+
+        <div class="section-title">
+            Agent activity
+        </div>
+
+        <div class="section-description">
+            Recent autonomous events
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="activity-layout">
+
+
+<div
+    class="activity-panel"
+    id="activityLog"
+>
+
+
+<div class="activity-row">
+
+    <div class="activity-time">
+        00:01
+    </div>
+
+    <div class="activity-dot"></div>
+
+    <div class="activity-message">
+
+        <strong>KWS Validation</strong>
+        loaded INT8 model.
+
+    </div>
+
+</div>
+
+
+<div class="activity-row">
+
+    <div class="activity-time">
+        00:04
+    </div>
+
+    <div class="activity-dot"></div>
+
+    <div class="activity-message">
+
+        <strong>ESP32 Agent</strong>
+        initialized inference arena.
+
+    </div>
+
+</div>
+
+
+<div class="activity-row">
+
+    <div class="activity-time">
+        00:08
+    </div>
+
+    <div class="activity-dot"></div>
+
+    <div class="activity-message">
+
+        <strong>Latency Agent</strong>
+        started T0 → T3 benchmark.
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="activity-panel">
+
+
+<div
+    class="section-title"
+    style="font-size:11px"
+>
+    System state
+</div>
+
+
+<br>
+
+
+<div class="agent-footer">
+
+    <span>
+        Wake detector
+    </span>
+
+    <span
+        style="color:#b7ff5a"
+    >
+        READY
+    </span>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>
+        Cloud audio
+    </span>
+
+    <span
+        style="color:#b7ff5a"
+    >
+        OFF
+    </span>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>
+        Wi-Fi
+    </span>
+
+    <span
+        style="color:#72b7ff"
+    >
+        STANDBY
+    </span>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>
+        Edge CPU
+    </span>
+
+    <span>
+        7.4%
+    </span>
+
+</div>
+
+
+<div class="agent-footer">
+
+    <span>
+        Edge RAM
+    </span>
+
+    <span>
+        142 KB
+    </span>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ARTIFACTS
+====================================================== -->
+
+<section
+    class="section"
+    id="artifacts"
+>
+
+
+<div class="section-head">
+
+    <div>
+
+        <div class="section-title">
+            Artifacts
+        </div>
+
+        <div class="section-description">
+            Outputs produced by VAANI agents
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="artifact-grid">
+
+
+<div class="artifact">
+
+    <div class="artifact-icon">
+        ◫
+    </div>
+
+    <div class="artifact-name">
+        architecture.md
+    </div>
+
+    <div class="artifact-type">
+        SYSTEM DESIGN
+    </div>
+
+</div>
+
+
+<div class="artifact">
+
+    <div class="artifact-icon">
+        ◉
+    </div>
+
+    <div class="artifact-name">
+        kws_model.tflite
+    </div>
+
+    <div class="artifact-type">
+        INT8 MODEL
+    </div>
+
+</div>
+
+
+<div class="artifact">
+
+    <div class="artifact-icon">
+        ≋
+    </div>
+
+    <div class="artifact-name">
+        benchmark.json
+    </div>
+
+    <div class="artifact-type">
+        PERFORMANCE
+    </div>
+
+</div>
+
+
+<div class="artifact">
+
+    <div class="artifact-icon">
+        □
+    </div>
+
+    <div class="artifact-name">
+        demo_report.md
+    </div>
+
+    <div class="artifact-type">
+        SIH REPORT
+    </div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     TERMINAL
+====================================================== -->
+
+<section
+    class="section"
+    id="terminal"
+>
+
+
+<div class="section-head">
+
+    <div>
+
+        <div class="section-title">
+            Terminal
+        </div>
+
+        <div class="section-description">
+            VAANI local execution environment
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="terminal">
+
+
+<div class="terminal-header">
+
+    <div class="terminal-dot"></div>
+
+    <div class="terminal-dot"></div>
+
+    <div class="terminal-dot"></div>
+
+    <div class="terminal-title">
+        vaani-agent
+    </div>
+
+</div>
+
+
+<div
+    class="terminal-body"
+    id="terminalOutput"
+>
+
+
+<div>
+    <span class="term-green">
+        $
+    </span>
+
+    vaani status
+</div>
+
+
+<div>
+    <span class="term-green">
+        ✓
+    </span>
+
+    edge detector online
+</div>
+
+
+<div>
+    <span class="term-green">
+        ✓
+    </span>
+
+    model loaded:
+    kws_model.tflite
+</div>
+
+
+<div>
+    <span class="term-green">
+        ✓
+    </span>
+
+    audio:
+    16kHz / mono / I2S
+</div>
+
+
+<div>
+    <span class="term-green">
+        ✓
+    </span>
+
+    continuous cloud audio:
+    disabled
+</div>
+
+
+<div>
+    <span class="term-white">
+        $
+    </span>
+
+    awaiting command...
+</div>
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer>
+
+    <div>
+        VAANI · SIH26172 · ISRO
+    </div>
+
+    <div>
+        Offline-first edge intelligence
+    </div>
+
+</footer>
+
+
+</div>
+
+
+</main>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODAL
+====================================================== -->
+
+<div
+    class="modal"
+    id="architectureModal"
+>
+
+
+<div class="modal-card">
+
+
+<div
+    class="modal-close"
+    id="modalClose"
+>
+    ✕
+</div>
+
+
+<div class="eyebrow">
+
+    ARCHITECTURE
+
+</div>
+
+
+<div class="modal-title">
+
+    Local intelligence first.
+
+</div>
+
+
+<div class="modal-text">
+
+    VAANI continuously processes microphone
+    audio locally on the edge device using
+    lightweight keyword spotting.
+
+    <br><br>
+
+    The wake word is detected locally using
+    MFCC / Log-Mel features and a lightweight
+    INT8 neural network.
+
+    <br><br>
+
+    Only after the wake event does VAANI
+    optionally activate Wi-Fi and stream
+    subsequent audio toward remote ASR.
+
+    <br><br>
+
+    This architecture minimizes unnecessary
+    network traffic, reduces privacy exposure,
+    and targets low-latency voice activation.
+
+</div>
+
+
+<br>
+
+
+<div class="terminal">
+
+<div class="terminal-body">
+
+    <div>
+        <span class="term-green">
+            MIC
+        </span>
+        → I2S
+    </div>
+
+    <div>
+        <span class="term-green">
+            ESP32
+        </span>
+        → MFCC
+    </div>
+
+    <div>
+        <span class="term-green">
+            KWS
+        </span>
+        → WAKE
+    </div>
+
+    <div>
+        <span class="term-green">
+            Wi-Fi
+        </span>
+        → ASR
+    </div>
+
+    <div>
+        <span class="term-green">
+            RESPONSE
+        </span>
+        → EDGE
+    </div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<div
+    class="toast"
+    id="toast"
+>
+    VAANI agent started.
+</div>
+
+
+
 <script>
-(() => {
-"use strict";
-const canvas=document.getElementById("world");
-const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x02050a,.019);
-const camera=new THREE.PerspectiveCamera(47,innerWidth/innerHeight,.1,100);
-camera.position.set(0,1.5,14);
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputEncoding=THREE.sRGBEncoding;
-scene.add(new THREE.HemisphereLight(0x8fdfff,0x01030a,1.1));
-const light1=new THREE.PointLight(0x42dfff,16,30);light1.position.set(0,3,5);scene.add(light1);
-const light2=new THREE.PointLight(0x8b5cf6,13,28);light2.position.set(-7,-2,-5);scene.add(light2);
 
-const world=new THREE.Group();scene.add(world);
-const core=new THREE.Group();core.position.y=.6;world.add(core);
-const outer=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,3),new THREE.MeshBasicMaterial({color:0x6de7ff,wireframe:true,transparent:true,opacity:.48}));core.add(outer);
-const inner=new THREE.Mesh(new THREE.IcosahedronGeometry(.72,3),new THREE.MeshStandardMaterial({color:0x07121c,emissive:0x0e91bd,emissiveIntensity:3,metalness:.7,roughness:.25}));core.add(inner);
-const halo=new THREE.Mesh(new THREE.SphereGeometry(1.8,32,32),new THREE.MeshBasicMaterial({color:0x30d5ff,transparent:true,opacity:.045,side:THREE.BackSide}));core.add(halo);
+/* =========================================================
+   HELPERS
+========================================================= */
 
-for(let i=0;i<12;i++){
- const r=1.55+i*.16;
- const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.007,4,160),new THREE.MeshBasicMaterial({color:i%2?0x9b7cff:0x63e6ff,transparent:true,opacity:.2-i*.009}));
- ring.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);core.add(ring);
+const $ = selector =>
+    document.querySelector(selector);
+
+const $$ = selector =>
+    document.querySelectorAll(selector);
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(message) {
+
+    const element = $("#toast");
+
+    element.textContent = message;
+
+    element.classList.add("show");
+
+    setTimeout(() => {
+
+        element.classList.remove("show");
+
+    }, 2800);
+
 }
-const orbiters=[];
-for(let i=0;i<36;i++){
- const m=new THREE.Mesh(new THREE.SphereGeometry(.022+(i%4)*.009,7,7),new THREE.MeshBasicMaterial({color:i%5===0?0x9b7cff:0x71e7ff}));
- m.userData={a:i/36*Math.PI*2,r:2+(i%6)*.28,s:.18+(i%6)*.018};core.add(m);orbiters.push(m);
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+$$(".nav-item").forEach(item => {
+
+    item.addEventListener("click", () => {
+
+        $$(".nav-item").forEach(nav =>
+            nav.classList.remove("active")
+        );
+
+        item.classList.add("active");
+
+        const target =
+            document.getElementById(
+                item.dataset.target
+            );
+
+        if (target) {
+
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+    });
+
+});
+
+
+/* =========================================================
+   RUN AGENT
+========================================================= */
+
+function runAgent(command = "Run VAANI validation") {
+
+    const state =
+        $("#commandState");
+
+    state.textContent =
+        "● Running";
+
+    state.style.color =
+        "#ffbd69";
+
+
+    toast("VAANI agent started.");
+
+
+    addActivity(
+        "NOW",
+        "VAANI Agent",
+        command
+    );
+
+
+    addTerminal(
+        "$ vaani agent run"
+    );
+
+
+    addTerminal(
+        "→ planning execution graph..."
+    );
+
+
+    setTimeout(() => {
+
+        addTerminal(
+            "✓ local KWS validation started"
+        );
+
+    }, 500);
+
+
+    setTimeout(() => {
+
+        addTerminal(
+            "✓ edge resources checked"
+        );
+
+    }, 1100);
+
+
+    setTimeout(() => {
+
+        addTerminal(
+            "✓ wake-to-ASR benchmark queued"
+        );
+
+        state.textContent =
+            "● Ready";
+
+        state.style.color =
+            "#b7ff5a";
+
+        toast("VAANI agent completed.");
+
+    }, 2100);
+
 }
 
-const nodes=[
-{id:"mic",name:"I2S MEMS MICROPHONE",p:[-5.6,1.7,.1],c:0x71e7ff},
-{id:"esp",name:"ESP32-S3 EDGE MCU",p:[-3.6,-.1,.3],c:0x4d8dff},
-{id:"kws",name:"CUSTOM KWS",p:[-1.7,2.2,.4],c:0x9b7cff},
-{id:"wifi",name:"WI-FI HANDOFF",p:[2.2,-1.4,.2],c:0x71e7ff},
-{id:"asr",name:"REMOTE ASR",p:[5.1,1.8,-.1],c:0x65f3ae},
-{id:"response",name:"VAANI RESPONSE",p:[3.5,3.9,.6],c:0x9b7cff}
+
+$("#runAgent").addEventListener(
+    "click",
+    () => runAgent()
+);
+
+
+/* =========================================================
+   COMMAND INPUT
+========================================================= */
+
+$("#commandRun").addEventListener(
+    "click",
+    () => {
+
+        const input =
+            $("#commandInput");
+
+        const command =
+            input.value.trim();
+
+        if (!command) {
+
+            toast(
+                "Enter a command first."
+            );
+
+            input.focus();
+
+            return;
+
+        }
+
+        runAgent(command);
+
+        input.value = "";
+
+    }
+);
+
+
+/* =========================================================
+   ENTER KEY
+========================================================= */
+
+$("#commandInput")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                $("#commandRun").click();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   RUN ALL
+========================================================= */
+
+$("#runAll").addEventListener(
+    "click",
+    () => {
+
+        toast(
+            "All VAANI agents started."
+        );
+
+
+        $$(".progress-bar").forEach(
+            bar => {
+
+                bar.style.width =
+                    "92%";
+
+            }
+        );
+
+
+        $$(".progress-value").forEach(
+            value => {
+
+                value.textContent =
+                    "92%";
+
+            }
+        );
+
+
+        addActivity(
+            "NOW",
+            "Orchestrator",
+            "All engineering agents started."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   DIGITAL TWIN
+========================================================= */
+
+$("#openTwin").addEventListener(
+    "click",
+    () => {
+
+        $("#twin")
+            .scrollIntoView({
+                behavior: "smooth"
+            });
+
+        toast(
+            "Digital Twin opened."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   ARCHITECTURE MODAL
+========================================================= */
+
+const modal =
+    $("#architectureModal");
+
+
+function openArchitecture() {
+
+    modal.classList.add("show");
+
+}
+
+
+function closeArchitecture() {
+
+    modal.classList.remove("show");
+
+}
+
+
+$("#architectureButton")
+    .addEventListener(
+        "click",
+        openArchitecture
+    );
+
+
+$("#viewArchitecture")
+    .addEventListener(
+        "click",
+        openArchitecture
+    );
+
+
+$("#modalClose")
+    .addEventListener(
+        "click",
+        closeArchitecture
+    );
+
+
+modal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target === modal
+        ) {
+
+            closeArchitecture();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ACTIVITY
+========================================================= */
+
+function addActivity(
+    time,
+    agent,
+    message
+) {
+
+    const log =
+        $("#activityLog");
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "activity-row";
+
+    row.innerHTML = `
+
+        <div class="activity-time">
+            ${time}
+        </div>
+
+        <div class="activity-dot"></div>
+
+        <div class="activity-message">
+            <strong>${agent}</strong>
+            ${message}
+        </div>
+
+    `;
+
+    log.prepend(row);
+
+}
+
+
+/* =========================================================
+   TERMINAL
+========================================================= */
+
+function addTerminal(message) {
+
+    const terminal =
+        $("#terminalOutput");
+
+    const line =
+        document.createElement("div");
+
+    line.innerHTML = `
+        <span class="term-green">
+            $
+        </span>
+        ${message}
+    `;
+
+    terminal.appendChild(line);
+
+    terminal.scrollTop =
+        terminal.scrollHeight;
+
+}
+
+
+/* =========================================================
+   VOICE COMMAND
+========================================================= */
+
+let recognition = null;
+
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+if (SpeechRecognition) {
+
+    recognition =
+        new SpeechRecognition();
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+    recognition.lang = "en-IN";
+
+
+    recognition.onstart = () => {
+
+        toast(
+            "Listening..."
+        );
+
+    };
+
+
+    recognition.onresult = event => {
+
+        const text =
+            event.results[0][0].transcript;
+
+        $("#commandInput").value =
+            text;
+
+        toast(
+            "Voice command captured."
+        );
+
+    };
+
+
+    recognition.onerror = () => {
+
+        toast(
+            "Voice input unavailable."
+        );
+
+    };
+
+}
+
+
+$("#voiceButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            if (!recognition) {
+
+                toast(
+                    "Browser voice input is unavailable."
+                );
+
+                return;
+
+            }
+
+            recognition.start();
+
+        }
+    );
+
+
+/* =========================================================
+   PROGRESS ANIMATION
+========================================================= */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        $$(".progress-bar")
+            .forEach(bar => {
+
+                const target =
+                    bar.dataset.progress;
+
+                bar.style.width =
+                    "0%";
+
+                setTimeout(() => {
+
+                    bar.style.width =
+                        target + "%";
+
+                }, 400);
+
+            });
+
+    }
+);
+
+
+/* =========================================================
+   RANDOM SYSTEM ACTIVITY
+========================================================= */
+
+const systemEvents = [
+
+    [
+        "KWS Validation",
+        "checked noise robustness."
+    ],
+
+    [
+        "ESP32 Agent",
+        "verified tensor arena."
+    ],
+
+    [
+        "Latency Agent",
+        "captured wake event."
+    ],
+
+    [
+        "Orchestrator",
+        "updated execution graph."
+    ]
+
 ];
-const nodeGroup=new THREE.Group();world.add(nodeGroup), nodeMap={};
-nodes.forEach((n,i)=>{
- const g=new THREE.Group();g.position.set(...n.p);g.userData=n;
- const plate=new THREE.Mesh(new THREE.BoxGeometry(1.45,.12,.95),new THREE.MeshStandardMaterial({color:0x07111b,emissive:n.c,emissiveIntensity:.22,metalness:.7,roughness:.28}));
- g.add(plate);
- const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.48,.14,.98)),new THREE.LineBasicMaterial({color:n.c,transparent:true,opacity:.62}));g.add(edge);
- const led=new THREE.Mesh(new THREE.SphereGeometry(.075,8,8),new THREE.MeshBasicMaterial({color:n.c}));led.position.y=.13;g.add(led);
- nodeGroup.add(g);nodeMap[n.id]=g;
-});
 
-const routes=[["mic","esp"],["esp","kws"],["kws","wifi"],["wifi","asr"],["asr","response"],["response","kws"]];
-const packets=[];
-routes.forEach((r,ri)=>{
- const a=nodeMap[r[0]].position.clone(),b=nodeMap[r[1]].position.clone(),m=a.clone().lerp(b,.5);m.y+=(ri%2?-0.5:.5);
- const curve=new THREE.QuadraticBezierCurve3(a,m,b);
- const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)),new THREE.LineBasicMaterial({color:ri===4?0x65f3ae:0x4fcfff,transparent:true,opacity:.24}));world.add(line);
- for(let j=0;j<2;j++){const p=new THREE.Mesh(new THREE.SphereGeometry(.05,7,7),new THREE.MeshBasicMaterial({color:ri===4?0x65f3ae:0x71e7ff}));p.userData={curve,t:j*.5,s:.09+ri*.005};world.add(p);packets.push(p)}
-});
 
-const starsG=new THREE.BufferGeometry(),N=1400,pos=new Float32Array(N*3);
-for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*55;pos[i*3+1]=(Math.random()-.5)*34;pos[i*3+2]=(Math.random()-.5)*45-8}
-starsG.setAttribute("position",new THREE.BufferAttribute(pos,3));
-const stars=new THREE.Points(starsG,new THREE.PointsMaterial({color:0x8bdfff,size:.035,transparent:true,opacity:.58}));scene.add(stars);
+setInterval(
+    () => {
 
-const grid=new THREE.GridHelper(28,28,0x174b63,0x092231);grid.position.y=-4.1;grid.material.transparent=true;grid.material.opacity=.13;world.add(grid);
+        const event =
+            systemEvents[
+                Math.floor(
+                    Math.random() *
+                    systemEvents.length
+                )
+            ];
 
-let mouseX=0,mouseY=0,targetZ=14,targetX=0,targetY=1.5,run=false,timer=null;
-const stateData={
-IDLE:["12%","20 ms","98.4%","6.2%","SYSTEM READY",22],
-LISTENING:["67%","18 ms","97.9%","9.8%","LISTENING",48],
-"WAKE DETECTED":["91%","14 ms","99.2%","12.4%","WAKE DETECTED",72],
-PROCESSING:["74%","22 ms","98.8%","18.7%","PROCESSING",86],
-ASR:["83%","46 ms","98.1%","14.1%","REMOTE ASR",94],
-RESPONSE:["36%","31 ms","99.0%","8.4%","RESPONSE READY",65],
-STOPPED:["0%","—","—","2.1%","TEST STOPPED",8]
-};
-function setState(s){
- document.getElementById("state").textContent=s;
- const d=stateData[s]||stateData.IDLE;
- ["audio","latency","confidence","cpu","coreSmall"].forEach((id,i)=>document.getElementById(id).textContent=d[i]);
- document.getElementById("meter").style.width=d[5]+"%";
- document.getElementById("liveText").textContent=s==="STOPPED"?"SYSTEM PAUSED · TEST STOPPED":"SYSTEM ONLINE · EDGE INTELLIGENCE";
-}
-const sequence=["LISTENING","WAKE DETECTED","PROCESSING","ASR","RESPONSE","IDLE"];
-function activate(){if(run)return;run=true;let i=0;setState(sequence[0]);clearInterval(timer);timer=setInterval(()=>{i++;if(i<sequence.length)setState(sequence[i]);else{clearInterval(timer);run=false}},850)}
-function stop(){clearInterval(timer);run=false;setState("STOPPED")}
-function reset(){scrollTo({top:0,behavior:"smooth"});world.rotation.set(0,0,0);targetZ=14;targetX=0;targetY=1.5;setState("IDLE")}
-document.getElementById("activate").onclick=activate;document.getElementById("stop").onclick=stop;document.getElementById("reset").onclick=reset;
-addEventListener("mousemove",e=>{mouseX=e.clientX/innerWidth-.5;mouseY=e.clientY/innerHeight-.5});
-addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
+        addActivity(
+            new Date()
+                .toLocaleTimeString(
+                    [],
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    }
+                ),
+            event[0],
+            event[1]
+        );
 
-const chapters=[...document.querySelectorAll(".chapter")];
-const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");if(!run)setState(e.target.dataset.state)}}),{threshold:.45});chapters.forEach(x=>obs.observe(x));
-const sections=[...document.querySelectorAll(".section")],links=[...document.querySelectorAll(".nav a")];
-const sobs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+e.target.id))}}),{threshold:.35});sections.forEach(x=>sobs.observe(x));
+    },
+    6500
+);
 
-addEventListener("scroll",()=>{
- const max=document.documentElement.scrollHeight-innerHeight,p=max?scrollY/max:0;
- document.getElementById("progress").style.height=(p*100)+"%";
- document.getElementById("heroCopy").style.transform=`translate3d(${mouseX*8}px,${scrollY*.08}px,0)`;
- document.getElementById("heroCopy").style.opacity=Math.max(0,1-scrollY/700);
- targetZ=14-p*5.8;targetY=1.5+Math.sin(p*Math.PI)*1.1;targetX=(p-.5)*4.5;
- world.rotation.y=p*.72;world.rotation.x=(p-.5)*.12;
- document.getElementById("scrollHint").style.opacity=p>.04?"0":"1";
-});
 
-const clock=new THREE.Clock();
-function animate(){
- requestAnimationFrame(animate);const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.05);
- outer.rotation.x=t*.16;outer.rotation.y=t*.25;inner.rotation.x=-t*.1;inner.rotation.y=-t*.2;halo.scale.setScalar(1+Math.sin(t*1.6)*.045);
- core.rotation.y+=dt*.025;
- orbiters.forEach(o=>{const u=o.userData,a=u.a+t*u.s;o.position.set(Math.cos(a)*u.r,Math.sin(a*1.2)*.5,Math.sin(a)*u.r)});
- packets.forEach(p=>{p.userData.t=(p.userData.t+dt*p.userData.s)%1;p.position.copy(p.userData.curve.getPointAt(p.userData.t));p.scale.setScalar(1+Math.sin(t*9+p.userData.t*8)*.25)});
- nodeGroup.children.forEach((n,i)=>n.position.y=nodes[i].p[1]+Math.sin(t*1.4+i)*.035);
- stars.rotation.y=t*.003;grid.position.z=Math.sin(t*.12)*.7;
- camera.position.x+=(targetX+mouseX*.65-camera.position.x)*.035;camera.position.y+=(targetY-mouseY*.4-camera.position.y)*.035;camera.position.z+=(targetZ-camera.position.z)*.035;camera.lookAt(0,.5,0);
- light1.position.x=Math.sin(t*.4)*5;light1.position.z=Math.cos(t*.4)*5;
- renderer.render(scene,camera);
-}
-setState("IDLE");animate();
-})();
+/* =========================================================
+   DIGITAL TWIN PACKETS
+========================================================= */
+
+setInterval(
+    () => {
+
+        const twin =
+            $(".twin");
+
+        const packet =
+            document.createElement(
+                "div"
+            );
+
+        packet.className =
+            "packet";
+
+        packet.style.left =
+            "18%";
+
+        packet.style.top =
+            "40%";
+
+        packet.style.animationDuration =
+            (2 + Math.random()) + "s";
+
+        twin.appendChild(packet);
+
+        setTimeout(
+            () => packet.remove(),
+            4000
+        );
+
+    },
+    2800
+);
+
+
+/* =========================================================
+   ARTIFACT CLICK
+========================================================= */
+
+$$(".artifact").forEach(
+    artifact => {
+
+        artifact.addEventListener(
+            "click",
+            () => {
+
+                const name =
+                    artifact.querySelector(
+                        ".artifact-name"
+                    ).textContent;
+
+                toast(
+                    name +
+                    " artifact selected."
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+setTimeout(
+    () => {
+
+        toast(
+            "VAANI command center online."
+        );
+
+    },
+    900
+);
+
 </script>
+
+
 </body>
+
 </html>

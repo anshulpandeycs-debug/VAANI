@@ -21,7 +21,7 @@ st.set_page_config(
 # GLOBAL CSS
 # ============================================================
 
-st.markdown("""
+st.markdown(dedent("""
 <style>
 
 :root {
@@ -81,580 +81,122 @@ html, body, [class*="css"] {
 .stApp::after {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: -15%;
     z-index: 0;
     pointer-events: none;
-    opacity: .32;
+    opacity: .5;
     background-image:
-        radial-gradient(circle, rgba(148,163,184,.7) 0 1px, transparent 1.5px),
-        radial-gradient(circle, rgba(34,211,238,.65) 0 1px, transparent 1.5px);
-    background-size: 97px 113px, 157px 181px;
-    background-position: 12px -40px, 63px -90px;
-    animation: vaaniStarDrift 28s linear infinite;
+        radial-gradient(circle, rgba(255,255,255,.85) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(34,211,238,.65) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,.45) 0 1.5px, transparent 2px);
+    background-size: 115px 115px, 173px 173px, 257px 257px;
+    background-position: 8px 20px, 70px 40px, 130px 10px;
+    animation: vaaniStarDrift 22s linear infinite;
 }
 
 @keyframes vaaniAmbientPulse {
-    from { transform: scale(1); opacity: .72; }
-    to   { transform: scale(1.08); opacity: 1; }
+    from { opacity: .65; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.025); }
 }
 
 @keyframes vaaniStarDrift {
-    from { transform: translate3d(0,-20px,0); }
-    to   { transform: translate3d(14px,150px,0); }
+    from { transform: translate3d(0,-3%,0); }
+    to { transform: translate3d(3%,12%,0); }
 }
 
-/* Keep all actual Streamlit content above the animated background. */
-[data-testid="stAppViewContainer"] > .main,
-[data-testid="stAppViewContainer"] .block-container {
-    position: relative;
-    z-index: 1;
-}
-
-/* ---------- HERO ---------- */
-
-
-.hero {
-    position: relative;
-    overflow: hidden;
-    padding: 58px 48px;
-    border-radius: 28px;
-    border: 1px solid rgba(34,211,238,.22);
-    background:
-        radial-gradient(circle at 90% 20%, rgba(34,211,238,.12), transparent 28%),
-        radial-gradient(circle at 10% 90%, rgba(37,99,235,.15), transparent 30%),
-        linear-gradient(135deg,#0C1B2B,#07111F);
-    box-shadow: 0 25px 90px rgba(0,0,0,.35);
-}
-
-.hero:after {
+/* Extra falling-star streaks */
+section.main > div:first-child::before,
+section.main > div:first-child::after {
     content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
+    position: fixed;
+    top: -12%;
+    left: 12%;
+    width: 2px;
+    height: 80px;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transform: rotate(32deg);
     background: linear-gradient(
-        90deg,
+        to bottom,
         transparent,
-        #2563EB,
-        #22D3EE,
-        #2563EB,
+        rgba(103,232,249,.75),
         transparent
     );
-    opacity: .7;
-}
-
-.kicker {
-    color: #22D3EE;
-    font-size: .78rem;
-    font-weight: 800;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-}
-
-.hero h1 {
-    font-size: clamp(3.5rem,7vw,6.5rem);
-    line-height: .9;
-    margin: 15px 0 18px;
-    font-weight: 900;
-    letter-spacing: -.06em;
-    color: #F8FAFC;
-}
-
-.hero-subtitle {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #E2E8F0;
-    margin-bottom: 10px;
-}
-
-.hero-text {
-    max-width: 950px;
-    color: #CBD5E1;
-    font-size: 1.03rem;
-    line-height: 1.75;
-}
-
-.badge {
-    display: inline-block;
-    margin: 7px 5px 0 0;
-    padding: 6px 11px;
-    border-radius: 999px;
-    background: rgba(37,99,235,.12);
-    border: 1px solid rgba(37,99,235,.35);
-    color: #BFDBFE;
-    font-size: .75rem;
-    font-weight: 700;
-}
-
-/* ---------- SECTION ---------- */
-
-.section-kicker {
-    margin-top: 48px;
-    margin-bottom: 5px;
-    color: #22D3EE;
-    font-size: .72rem;
-    font-weight: 800;
-    letter-spacing: .15em;
-    text-transform: uppercase;
-}
-
-.section-title {
-    font-size: 2rem;
-    font-weight: 850;
-    margin-bottom: 7px;
-}
-
-.section-description {
-    color: #94A3B8;
-    max-width: 900px;
-    line-height: 1.7;
-}
-
-/* ---------- CARDS ---------- */
-
-.card {
-    height: 100%;
-    padding: 22px;
-    border-radius: 18px;
-    background: linear-gradient(145deg,#0D1B2A,#091522);
-    border: 1px solid rgba(148,163,184,.13);
-    box-shadow: 0 12px 35px rgba(0,0,0,.18);
-}
-
-.card-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: #F8FAFC;
-}
-
-.card-text {
-    color: #94A3B8;
-    line-height: 1.65;
-    font-size: .92rem;
-}
-
-.metric-card {
-    padding: 20px;
-    border-radius: 17px;
-    background: rgba(11,22,36,.9);
-    border: 1px solid rgba(148,163,184,.14);
-    min-height: 130px;
-}
-
-.metric-number {
-    font-size: 1.85rem;
-    font-weight: 900;
-    color: #F8FAFC;
-}
-
-.metric-label {
-    margin-top: 5px;
-    color: #94A3B8;
-    font-size: .82rem;
-}
-
-.metric-type {
-    margin-top: 10px;
-    color: #22D3EE;
-    font-size: .68rem;
-    font-weight: 800;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-/* ---------- ENHANCED METRICS + AMBIENT MOTION ---------- */
-
-.stApp {
-    position: relative;
-    overflow-x: hidden;
-}
-
-.stApp::before {
-    content: "";
-    position: fixed;
-    inset: -18%;
-    z-index: 0;
-    pointer-events: none;
-    background:
-        radial-gradient(circle at 18% 22%, rgba(34,211,238,.11), transparent 22%),
-        radial-gradient(circle at 78% 18%, rgba(37,99,235,.12), transparent 25%),
-        radial-gradient(circle at 52% 82%, rgba(34,197,94,.045), transparent 24%);
-    filter: blur(12px);
-    animation: vaaniAmbientDrift 18s ease-in-out infinite alternate;
-}
-
-.block-container {
-    position: relative;
-    z-index: 1;
-}
-
-@keyframes vaaniAmbientDrift {
-    0% {
-        transform: translate3d(-2%, -1%, 0) scale(1);
-    }
-    50% {
-        transform: translate3d(2%, 1.5%, 0) scale(1.035);
-    }
-    100% {
-        transform: translate3d(-1%, 2%, 0) scale(1.015);
-    }
-}
-
-.metric-card {
-    background:
-        radial-gradient(circle at 88% 12%, rgba(34,211,238,.09), transparent 34%),
-        linear-gradient(145deg, rgba(14,31,48,.97), rgba(7,17,31,.97));
-    border: 1px solid rgba(34,211,238,.22);
     box-shadow:
-        0 14px 42px rgba(0,0,0,.28),
-        inset 0 1px 0 rgba(255,255,255,.035);
-    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        280px 120px 0 rgba(103,232,249,.0),
+        520px 260px 0 rgba(103,232,249,.0),
+        760px 80px 0 rgba(103,232,249,.0);
+    animation: vaaniMeteor 8s linear infinite;
 }
 
-.metric-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(34,211,238,.42);
-    box-shadow:
-        0 18px 50px rgba(0,0,0,.34),
-        0 0 28px rgba(34,211,238,.07);
+section.main > div:first-child::after {
+    left: 58%;
+    animation-delay: -4.5s;
+    animation-duration: 11s;
 }
 
-.metric-number {
-    color: #FFFFFF;
-    text-shadow: 0 0 22px rgba(34,211,238,.13);
-}
-
-.metric-label {
-    color: #CBD5E1;
-}
-
-.metric-type {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 999px;
-    background: rgba(34,211,238,.08);
-    border: 1px solid rgba(34,211,238,.13);
-}
-
-div[data-testid="stMetric"] {
-    padding: 16px 18px;
-    border-radius: 17px;
-    background:
-        radial-gradient(circle at 90% 0%, rgba(34,211,238,.08), transparent 36%),
-        rgba(9,20,34,.92);
-    border: 1px solid rgba(34,211,238,.16);
-    box-shadow: 0 12px 35px rgba(0,0,0,.22);
-}
-
-div[data-testid="stMetricLabel"] {
-    color: #CBD5E1 !important;
-}
-
-div[data-testid="stMetricValue"] {
-    color: #FFFFFF !important;
-    font-size: 2.15rem !important;
-    font-weight: 900 !important;
-    letter-spacing: -.035em;
-    text-shadow: 0 0 22px rgba(34,211,238,.12);
-}
-
-div[data-testid="stMetricDelta"] {
-    color: #22C55E !important;
-    font-weight: 700 !important;
-}
-
-div[data-testid="stMetricDelta"] svg {
-    fill: currentColor !important;
-}
-
-
-/* ---------- STATUS ---------- */
-
-.status-local {
-    color: #22C55E;
-    font-weight: 800;
-}
-
-.status-network {
-    color: #60A5FA;
-    font-weight: 800;
-}
-
-.status-target {
-    color: #F59E0B;
-    font-weight: 800;
-}
-
-.status-external {
-    color: #A78BFA;
-    font-weight: 800;
-}
-
-/* ---------- INFO BOX ---------- */
-
-.info-box {
-    padding: 17px 19px;
-    margin: 12px 0;
-    border-left: 4px solid #22D3EE;
-    border-radius: 9px;
-    background: rgba(34,211,238,.055);
-    color: #CBD5E1;
-    line-height: 1.65;
-}
-
-.warning-box {
-    padding: 17px 19px;
-    margin: 12px 0;
-    border-left: 4px solid #F59E0B;
-    border-radius: 9px;
-    background: rgba(245,158,11,.06);
-    color: #FDE68A;
-    line-height: 1.65;
-}
-
-.green-box {
-    padding: 17px 19px;
-    margin: 12px 0;
-    border-left: 4px solid #22C55E;
-    border-radius: 9px;
-    background: rgba(34,197,94,.055);
-    color: #BBF7D0;
-    line-height: 1.65;
-}
-
-/* ---------- SOURCE ---------- */
-
-.source {
-    margin: 7px 0;
-    padding: 9px 12px;
-    border-left: 3px solid #22D3EE;
-    border-radius: 7px;
-    background: rgba(34,211,238,.045);
-    color: #94A3B8;
-    font-size: .78rem;
-}
-
-.source a {
-    color: #67E8F9;
-    text-decoration: none;
-}
-
-/* ---------- TABLE ---------- */
-
-.dataframe {
-    border-radius: 12px;
-}
-
-/* ---------- FOOTER ---------- */
-
-.footer {
-    margin-top: 55px;
-    padding: 28px;
-    text-align: center;
-    border-top: 1px solid rgba(148,163,184,.12);
-    color: #64748B;
-    font-size: .78rem;
-}
-
-
-
-/* ---------- FALLING STARS + DINOSAUR BACKGROUND ---------- */
-
-.vaani-ambient {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.falling-star {
-    position: absolute;
-    top: -30px;
-    left: var(--left);
-    width: var(--size);
-    height: var(--size);
-    border-radius: 50%;
-    background: #E0F2FE;
-    box-shadow: 0 0 7px rgba(103,232,249,.8);
-    opacity: .72;
-    animation: vaaniFallingStar var(--duration) linear infinite;
-    animation-delay: var(--delay);
-}
-
-.falling-star::after {
-    content: "";
-    position: absolute;
-    top: calc(var(--size) * -5);
-    left: 50%;
-    width: 1px;
-    height: calc(var(--size) * 5);
-    transform: rotate(16deg);
-    transform-origin: bottom;
-    background: linear-gradient(to top, rgba(103,232,249,.38), transparent);
-}
-
-.s01 { --left: 4%;  --size: 2px; --duration: 13s; --delay: -3s; }
-.s02 { --left: 8%;  --size: 1px; --duration: 17s; --delay: -11s; }
-.s03 { --left: 13%; --size: 2px; --duration: 21s; --delay: -7s; }
-.s04 { --left: 18%; --size: 1px; --duration: 15s; --delay: -13s; }
-.s05 { --left: 23%; --size: 2px; --duration: 24s; --delay: -4s; }
-.s06 { --left: 29%; --size: 1px; --duration: 18s; --delay: -15s; }
-.s07 { --left: 34%; --size: 2px; --duration: 20s; --delay: -9s; }
-.s08 { --left: 39%; --size: 1px; --duration: 16s; --delay: -2s; }
-.s09 { --left: 44%; --size: 2px; --duration: 23s; --delay: -18s; }
-.s10 { --left: 49%; --size: 1px; --duration: 14s; --delay: -6s; }
-.s11 { --left: 54%; --size: 2px; --duration: 19s; --delay: -12s; }
-.s12 { --left: 59%; --size: 1px; --duration: 22s; --delay: -8s; }
-.s13 { --left: 64%; --size: 2px; --duration: 15s; --delay: -10s; }
-.s14 { --left: 69%; --size: 1px; --duration: 18s; --delay: -5s; }
-.s15 { --left: 74%; --size: 2px; --duration: 25s; --delay: -20s; }
-.s16 { --left: 79%; --size: 1px; --duration: 16s; --delay: -14s; }
-.s17 { --left: 84%; --size: 2px; --duration: 21s; --delay: -1s; }
-.s18 { --left: 89%; --size: 1px; --duration: 17s; --delay: -16s; }
-.s19 { --left: 94%; --size: 2px; --duration: 20s; --delay: -9s; }
-.s20 { --left: 97%; --size: 1px; --duration: 14s; --delay: -6s; }
-.s21 { --left: 26%; --size: 1px; --duration: 27s; --delay: -22s; }
-.s22 { --left: 47%; --size: 2px; --duration: 26s; --delay: -17s; }
-.s23 { --left: 72%; --size: 1px; --duration: 23s; --delay: -19s; }
-.s24 { --left: 91%; --size: 2px; --duration: 28s; --delay: -24s; }
-
-@keyframes vaaniFallingStar {
-    0% {
-        transform: translate3d(0,-30px,0);
+@keyframes vaaniMeteor {
+    0%, 62% {
         opacity: 0;
+        transform: translate3d(0,-18vh,0) rotate(32deg);
     }
-    8% { opacity: .72; }
-    50% { opacity: .9; }
-    92% { opacity: .35; }
-    100% {
-        transform: translate3d(80px,115vh,0);
+    68% { opacity: .8; }
+    82% {
         opacity: 0;
+        transform: translate3d(32vw,105vh,0) rotate(32deg);
     }
-}
-
-.shooting-star {
-    position: absolute;
-    width: 90px;
-    height: 1px;
-    top: 8%;
-    left: -120px;
-    opacity: 0;
-    transform: rotate(24deg);
-    background: linear-gradient(90deg, transparent, rgba(224,242,254,.85), transparent);
-    box-shadow: 0 0 10px rgba(34,211,238,.55);
-    animation: vaaniShootingStar 12s linear infinite;
-}
-
-.shoot02 {
-    top: 34%;
-    animation-delay: -6s;
-    animation-duration: 17s;
-    width: 65px;
-}
-
-@keyframes vaaniShootingStar {
-    0%, 66% { transform: translate3d(-120px,0,0) rotate(24deg); opacity: 0; }
-    69% { opacity: .8; }
-    78% { transform: translate3d(125vw,48vh,0) rotate(24deg); opacity: 0; }
     100% { opacity: 0; }
 }
 
-.vaani-dino {
+/* Subtle dinosaur silhouettes looking toward the star field */
+.stApp .block-container::before {
+    content: "🦖";
     position: fixed;
-    bottom: 18px;
-    z-index: 0;
-    font-size: clamp(48px, 6vw, 92px);
-    line-height: 1;
-    opacity: .075;
-    filter: grayscale(1) brightness(1.7) drop-shadow(0 0 18px rgba(34,211,238,.28));
-    animation: vaaniDinoFloat 5s ease-in-out infinite;
-}
-
-.dino-left {
     left: 2.5%;
+    bottom: 14px;
+    z-index: 1;
+    pointer-events: none;
+    font-size: clamp(34px, 4.5vw, 68px);
+    opacity: .055;
+    filter: grayscale(1) brightness(1.9) drop-shadow(0 0 14px rgba(34,211,238,.25));
     transform: scaleX(-1);
-    animation-delay: -.7s;
+    animation: vaaniDinoLook 5s ease-in-out infinite;
 }
 
-.dino-right {
-    right: 2.5%;
-    animation-delay: -2.3s;
+.stApp .block-container::after {
+    content: "🦕";
+    position: fixed;
+    right: 3%;
+    bottom: 18px;
+    z-index: 1;
+    pointer-events: none;
+    font-size: clamp(30px, 4vw, 60px);
+    opacity: .045;
+    filter: grayscale(1) brightness(1.9) drop-shadow(0 0 14px rgba(34,211,238,.2));
+    animation: vaaniDinoLook 6s ease-in-out infinite reverse;
 }
 
-.dino-back {
-    left: 50%;
-    bottom: 7%;
-    font-size: clamp(32px, 4vw, 62px);
-    opacity: .035;
-    transform: translateX(-50%);
-    animation-delay: -3.5s;
-}
-
-@keyframes vaaniDinoFloat {
-    0%,100% { margin-bottom: 0; filter: grayscale(1) brightness(1.7) drop-shadow(0 0 18px rgba(34,211,238,.2)); }
-    50% { margin-bottom: 8px; filter: grayscale(1) brightness(2) drop-shadow(0 0 24px rgba(34,211,238,.32)); }
+@keyframes vaaniDinoLook {
+    0%,100% { transform: translateY(0) scaleX(-1); }
+    50% { transform: translateY(-6px) scaleX(-1.03); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .falling-star,
-    .shooting-star,
-    .vaani-dino,
     .stApp::before,
-    .stApp::after {
+    .stApp::after,
+    section.main > div:first-child::before,
+    section.main > div:first-child::after,
+    .stApp .block-container::before,
+    .stApp .block-container::after {
         animation: none !important;
     }
 }
 
 </style>
-""", unsafe_allow_html=True)
+"""), unsafe_allow_html=True)
 
 
-
-# ============================================================
-# AMBIENT VISUAL LAYER
-# ============================================================
-
-st.markdown(
-    dedent("""
-    <div class="vaani-ambient" aria-hidden="true">
-        <div class="falling-star s01"></div>
-        <div class="falling-star s02"></div>
-        <div class="falling-star s03"></div>
-        <div class="falling-star s04"></div>
-        <div class="falling-star s05"></div>
-        <div class="falling-star s06"></div>
-        <div class="falling-star s07"></div>
-        <div class="falling-star s08"></div>
-        <div class="falling-star s09"></div>
-        <div class="falling-star s10"></div>
-        <div class="falling-star s11"></div>
-        <div class="falling-star s12"></div>
-        <div class="falling-star s13"></div>
-        <div class="falling-star s14"></div>
-        <div class="falling-star s15"></div>
-        <div class="falling-star s16"></div>
-        <div class="falling-star s17"></div>
-        <div class="falling-star s18"></div>
-        <div class="falling-star s19"></div>
-        <div class="falling-star s20"></div>
-        <div class="falling-star s21"></div>
-        <div class="falling-star s22"></div>
-        <div class="falling-star s23"></div>
-        <div class="falling-star s24"></div>
-
-        <div class="shooting-star shoot01"></div>
-        <div class="shooting-star shoot02"></div>
-
-        <div class="vaani-dino dino-left">🦖</div>
-        <div class="vaani-dino dino-right">🦖</div>
-        <div class="vaani-dino dino-back">🦕</div>
-    </div>
-    """),
-    unsafe_allow_html=True,
-)
 
 # ============================================================
 # DATA / EVIDENCE
@@ -703,7 +245,7 @@ SOURCES = {
 
 def source_link(label, key):
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="source">
             <b>{label}</b>
             ·
@@ -711,18 +253,18 @@ def source_link(label, key):
                 {key} source ↗
             </a>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 
 def section(number, title, description=""):
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="section-kicker">SECTION {number}</div>
         <div class="section-title">{title}</div>
         <div class="section-description">{description}</div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -789,13 +331,13 @@ for col, (number, label, typ) in zip(
 ):
     with col:
         st.markdown(
-            f"""
+            dedent(f"""
             <div class="metric-card">
                 <div class="metric-number">{number}</div>
                 <div class="metric-label">{label}</div>
                 <div class="metric-type">{typ}</div>
             </div>
-            """,
+            """),
             unsafe_allow_html=True,
         )
 
@@ -838,7 +380,7 @@ p1, p2, p3 = st.columns(3)
 
 with p1:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">01 · Continuous Listening</div>
         <div class="card-text">
@@ -846,13 +388,13 @@ with p1:
         requiring a full cloud speech-recognition stack to run all the time.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with p2:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">02 · False Activation</div>
         <div class="card-text">
@@ -860,13 +402,13 @@ with p2:
         network transmission and speech-recognition processing.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with p3:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">03 · Low Latency</div>
         <div class="card-text">
@@ -874,7 +416,7 @@ with p3:
         local detection and the first audio packet reaching remote ASR.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -944,7 +486,7 @@ a, b = st.columns(2)
 
 with a:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">
         <span class="status-local">LOCAL PATH</span>
@@ -955,13 +497,13 @@ with a:
         This path operates continuously on the edge device.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with b:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">
         <span class="status-network">NETWORK PATH</span>
@@ -972,7 +514,7 @@ with b:
         This path is activated only after a valid wake event.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -1172,20 +714,20 @@ u1, u2, u3 = st.columns(3)
 
 with u1:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">Edge-first</div>
         <div class="card-text">
         The device decides locally whether the user actually activated it.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with u2:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">Custom keyword</div>
         <div class="card-text">
@@ -1193,13 +735,13 @@ with u2:
         not a pre-trained commercial wake word.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with u3:
     st.markdown(
-        """
+        dedent("""
         <div class="card">
         <div class="card-title">Measurable</div>
         <div class="card-text">
@@ -1207,7 +749,7 @@ with u3:
         only desktop model accuracy.
         </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -1489,37 +1031,37 @@ m1, m2, m3 = st.columns(3)
 
 with m1:
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="metric-card">
         <div class="metric-number">₹{VOICE_2025_CR:,.0f} Cr</div>
         <div class="metric-label">TAM — India voice/speech market</div>
         <div class="metric-type">EXTERNAL MARKET ESTIMATE</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with m2:
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="metric-card">
         <div class="metric-number">₹{SAM_CR:,.0f} Cr</div>
         <div class="metric-label">SAM — modeled 25% edge/IoT subset</div>
         <div class="metric-type">MODELED ASSUMPTION</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 with m3:
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="metric-card">
         <div class="metric-number">₹{SOM_CR:,.1f} Cr</div>
         <div class="metric-label">SOM — modeled 3% SAM scenario</div>
         <div class="metric-type">PLANNING SCENARIO</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -1957,7 +1499,7 @@ source_names = {
 
 for key, name in source_names.items():
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="source">
             <b>{key}</b> — {name}
             ·
@@ -1965,7 +1507,7 @@ for key, name in source_names.items():
                 Open source ↗
             </a>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 

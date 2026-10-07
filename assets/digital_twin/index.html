@@ -3,584 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VAANI — Agentic Edge Intelligence</title>
+<title>VAANI — SIH26172</title>
 <style>
 :root{
-  --bg:#03050a;
-  --panel:rgba(7,12,20,.68);
-  --line:rgba(122,205,255,.22);
-  --cyan:#7de7ff;
-  --cyan2:#38bdf8;
-  --blue:#4f8cff;
-  --violet:#9b7cff;
-  --green:#70f6b4;
-  --text:#edf8ff;
-  --muted:#8295a7;
-  --danger:#ff6b8a;
+--bg:#02050a;--panel:rgba(6,12,20,.70);--panel2:rgba(10,20,31,.82);
+--cyan:#71e7ff;--blue:#4d8dff;--violet:#9b7cff;--green:#65f3ae;
+--orange:#ffbd68;--red:#ff6f91;--text:#effaff;--muted:#8ba0b1;
+--line:rgba(130,210,255,.16);
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
-body{overflow-y:auto}
-canvas{display:block}
-#scene{position:fixed;inset:0;z-index:0}
-#vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:
- radial-gradient(circle at 50% 43%,transparent 0 27%,rgba(0,0,0,.18) 58%,rgba(0,0,0,.84) 100%),
- linear-gradient(180deg,rgba(1,3,7,.08),rgba(1,3,7,.32))}
-#grain{position:fixed;inset:-50%;z-index:3;pointer-events:none;opacity:.075;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");animation:grain .18s steps(2) infinite}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+canvas#world{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#fx{position:fixed;inset:0;z-index:1;pointer-events:none;background:
+radial-gradient(circle at 50% 42%,transparent 0 22%,rgba(0,0,0,.13) 50%,rgba(0,0,0,.86) 100%),
+linear-gradient(180deg,rgba(1,4,8,.2),transparent 30%,rgba(1,3,7,.3));
+}
+#noise{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .2s steps(2) infinite}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(2%,-1%)}50%{transform:translate(-1%,2%)}75%{transform:translate(1%,1%)}100%{transform:translate(-2%,-2%)}}
-#ambient{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
-.ambient-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.16;animation:float 12s ease-in-out infinite}
-.a1{width:35vw;height:35vw;background:#1689ff;left:-10vw;top:20vh}
-.a2{width:28vw;height:28vw;background:#8b5cf6;right:-8vw;top:45vh;animation-delay:-4s}
-.a3{width:24vw;height:24vw;background:#00d4ff;left:38vw;bottom:-15vw;animation-delay:-8s}
-@keyframes float{50%{transform:translate3d(4vw,-3vh,0) scale(1.12)}}
-
-#ui{position:relative;z-index:10;min-height:420vh;pointer-events:none}
-.topbar{position:fixed;top:0;left:0;right:0;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(180deg,rgba(2,5,10,.72),transparent);backdrop-filter:blur(12px);pointer-events:auto;z-index:20}
-.brand{display:flex;align-items:center;gap:12px;letter-spacing:.24em;font-size:13px;font-weight:800}
-.brand-mark{width:29px;height:29px;border:1px solid rgba(125,231,255,.7);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 22px rgba(56,189,248,.28)}
-.brand-mark:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
-.status{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.18em;color:#9db0c0}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 1.5s infinite}
-@keyframes pulse{50%{opacity:.35;transform:scale(.7)}}
-
-.hud{position:fixed;right:28px;top:100px;width:240px;pointer-events:auto}
-.hud-card{padding:15px 16px;border:1px solid rgba(125,231,255,.14);background:rgba(3,8,15,.62);backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.28);margin-bottom:9px}
-.hud-title{font-size:9px;letter-spacing:.2em;color:#63798b;margin-bottom:9px}
-.hud-state{font-size:18px;font-weight:700;letter-spacing:.1em}
-.hud-row{display:flex;justify-content:space-between;align-items:end;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-.hud-row:last-child{border-bottom:0}
-.hud-label{font-size:9px;letter-spacing:.13em;color:#6d8092}
-.hud-value{font-size:12px;color:#d9f6ff;font-variant-numeric:tabular-nums}
-.bar{height:2px;margin-top:6px;background:rgba(255,255,255,.07);overflow:hidden}
-.bar i{display:block;height:100%;width:72%;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 10px var(--cyan);transition:width .4s}
-
-.hero-copy{position:fixed;left:42px;top:23vh;max-width:460px;pointer-events:none;transition:opacity .5s,transform .5s}
-.eyebrow{font-size:10px;letter-spacing:.27em;color:var(--cyan);font-weight:700;margin-bottom:17px}
-h1{font-size:clamp(50px,7vw,102px);line-height:.86;margin:0 0 20px;letter-spacing:-.06em;font-weight:850}
-.hero-copy p{margin:0;color:#91a5b5;font-size:15px;line-height:1.7;max-width:390px}
-.hero-copy strong{color:#dff8ff;font-weight:650}
-
-.core-label{position:fixed;left:50%;top:67%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;transition:opacity .35s}
-.core-label .small{font-size:9px;letter-spacing:.32em;color:#6f8496}
-.core-label .big{font-size:12px;letter-spacing:.22em;margin-top:7px;color:#dff8ff;text-shadow:0 0 20px rgba(125,231,255,.35)}
-
-.controls{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:30}
-button{font:inherit;color:#dff8ff;background:rgba(5,13,22,.78);border:1px solid rgba(125,231,255,.25);padding:11px 17px;border-radius:4px;letter-spacing:.14em;font-size:9px;font-weight:700;cursor:pointer;backdrop-filter:blur(12px);transition:.2s}
-button:hover{border-color:rgba(125,231,255,.72);box-shadow:0 0 25px rgba(56,189,248,.18);transform:translateY(-1px)}
-button.primary{background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(99,102,241,.16));border-color:rgba(125,231,255,.5)}
-button.stop{border-color:rgba(255,107,138,.35);color:#ffc4d0}
-button.stop:hover{border-color:rgba(255,107,138,.8);box-shadow:0 0 25px rgba(255,107,138,.15)}
-
-.arch{position:fixed;left:30px;bottom:29px;display:flex;gap:8px;pointer-events:none;opacity:.78}
-.arch span{padding:7px 9px;border:1px solid rgba(255,255,255,.07);font-size:8px;letter-spacing:.13em;color:#718494;background:rgba(4,8,13,.38)}
-.arch span b{color:#cdeaf5;font-weight:650}
-
-.scroll-hint{position:fixed;left:50%;bottom:31px;transform:translateX(-50%);font-size:8px;letter-spacing:.25em;color:#536778;pointer-events:none;transition:opacity .3s}
-.scroll-hint i{display:inline-block;width:35px;height:1px;background:#42596b;vertical-align:middle;margin:0 9px}
-
-.chapter{height:100vh;position:relative;display:flex;align-items:center;pointer-events:none}
-.chapter-inner{width:min(1100px,calc(100% - 80px));margin:auto;display:flex;justify-content:flex-start}
-.chapter-card{max-width:420px;padding:24px;border-left:1px solid rgba(125,231,255,.32);background:linear-gradient(90deg,rgba(3,8,14,.72),transparent);opacity:0;transform:translateY(28px);transition:.8s}
-.chapter.active .chapter-card{opacity:1;transform:none}
-.chapter:nth-child(even) .chapter-inner{justify-content:flex-end}
-.chapter:nth-child(even) .chapter-card{border-left:0;border-right:1px solid rgba(155,124,255,.32);text-align:right;background:linear-gradient(270deg,rgba(3,8,14,.72),transparent)}
-.chapter-num{font-size:9px;letter-spacing:.25em;color:var(--cyan);margin-bottom:12px}
-.chapter h2{font-size:38px;letter-spacing:-.035em;margin:0 0 10px}
-.chapter p{font-size:13px;line-height:1.7;color:#8095a5;margin:0}
-.chapter .tag{display:inline-block;margin-top:16px;font-size:8px;letter-spacing:.17em;color:#b6c9d6;border:1px solid rgba(255,255,255,.09);padding:7px 9px}
-
-#detail{position:fixed;left:28px;bottom:95px;width:310px;z-index:40;pointer-events:auto;display:none}
-.detail-box{padding:18px;border:1px solid rgba(125,231,255,.24);background:rgba(3,8,15,.82);backdrop-filter:blur(20px);box-shadow:0 25px 70px rgba(0,0,0,.45)}
-.detail-kicker{font-size:8px;letter-spacing:.22em;color:var(--cyan);margin-bottom:8px}
-.detail-title{font-size:21px;font-weight:750;margin-bottom:8px}
-.detail-text{font-size:11px;line-height:1.6;color:#8499aa}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
-.detail-grid div{border:1px solid rgba(255,255,255,.06);padding:8px}
-.detail-grid small{display:block;color:#596e7f;font-size:7px;letter-spacing:.15em;margin-bottom:4px}
-.detail-grid b{font-size:9px;color:#cfe8f2;font-weight:600}
-.detail-close{margin-top:12px;width:100%}
-
-#toast{position:fixed;top:92px;left:50%;transform:translateX(-50%) translateY(-12px);z-index:50;padding:9px 14px;border:1px solid rgba(125,231,255,.2);background:rgba(3,8,14,.78);backdrop-filter:blur(12px);font-size:9px;letter-spacing:.15em;color:#bdefff;opacity:0;transition:.25s;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%)}
-
-@media(max-width:850px){
-  .hero-copy{left:22px;top:17vh;max-width:330px}
-  .hud{right:16px;top:88px;width:185px}
-  .hud-card{padding:11px}
-  .arch{display:none}
-  .chapter-inner{width:calc(100% - 40px)}
-  .chapter-card{max-width:340px}
-}
-@media(max-width:600px){
-  .topbar{padding:0 17px}
-  .hero-copy{top:15vh;max-width:280px}
-  .hero-copy p{font-size:12px}
-  .hud{top:auto;bottom:85px;right:12px;width:155px;transform:scale(.85);transform-origin:right bottom}
-  .controls{bottom:16px}
-  .controls button{padding:9px 11px;font-size:8px}
-  .core-label{top:55%}
-  .chapter h2{font-size:30px}
-}
+#app{position:relative;z-index:5}
+.top{position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;z-index:20;background:linear-gradient(180deg,rgba(2,5,10,.82),transparent);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.045)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:.25em;font-size:13px}
+.mark{width:29px;height:29px;border:1px solid rgba(113,231,255,.65);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 25px rgba(72,200,255,.25)}
+.mark:after{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.live{font-size:9px;letter-spacing:.18em;color:#9ab0c0;display:flex;align-items:center;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.3;transform:scale(.65)}}
+.nav{position:fixed;right:28px;top:95px;z-index:20;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+.nav a{color:#667b8d;text-decoration:none;font-size:8px;letter-spacing:.17em;padding:5px 8px;border-right:1px solid transparent;transition:.2s}
+.nav a.active,.nav a:hover{color:var(--cyan);border-right-color:var(--cyan)}
+.progress{position:fixed;left:0;top:0;width:3px;height:100vh;z-index:30;background:rgba(255,255,255,.025)}
+.progress i{display:block;width:100%;height:0;background:linear-gradient(var(--violet),var(--cyan));box-shadow:0 0 15px var(--cyan)}
+.hero{min-height:100vh;display:flex;align-items:center;padding:110px 9vw 80px;position:relative}
+.hero-copy{max-width:620px;transition:transform .2s,opacity .2s}
+.kicker{font-size:10px;letter-spacing:.28em;color:var(--cyan);font-weight:800;margin-bottom:18px}
+h1{font-size:clamp(70px,11vw,155px);line-height:.78;letter-spacing:-.08em;margin:0 0 26px;font-weight:900;text-shadow:0 0 45px rgba(70,210,255,.12)}
+.hero h2{font-size:clamp(20px,2.4vw,34px);margin:0 0 15px;letter-spacing:-.025em}
+.hero p{max-width:590px;color:#8ea3b3;font-size:15px;line-height:1.8;margin:0}
+.chips{margin-top:25px;display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:7px 10px;border:1px solid rgba(113,231,255,.15);background:rgba(6,14,23,.5);color:#a9c0cf;font-size:8px;letter-spacing:.14em}
+.center-label{position:fixed;left:50%;top:67%;transform:translate(-50%,-50%);z-index:8;text-align:center;pointer-events:none;transition:.4s}
+.center-label .small{font-size:8px;letter-spacing:.28em;color:#61788a}
+.center-label .big{font-size:11px;letter-spacing:.22em;margin-top:7px;text-shadow:0 0 20px rgba(113,231,255,.3)}
+.hud{position:fixed;right:30px;top:100px;width:215px;z-index:15;pointer-events:none}
+.hudbox{padding:14px;border:1px solid var(--line);background:rgba(3,9,16,.58);backdrop-filter:blur(18px);margin-bottom:8px}
+.hudtitle{font-size:8px;letter-spacing:.2em;color:#627789;margin-bottom:8px}
+.state{font-size:17px;font-weight:750;letter-spacing:.1em}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:9px}
+.row:last-child{border-bottom:0}
+.row span:first-child{color:#647a8c;letter-spacing:.1em}.row span:last-child{color:#d4f3ff}
+.meter{height:2px;background:rgba(255,255,255,.06);margin-top:8px}.meter i{display:block;height:100%;width:25%;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 10px var(--cyan);transition:width .35s}
+.scroll{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.25em;color:#526879;z-index:10;pointer-events:none}
+.scroll:before,.scroll:after{content:"";display:inline-block;width:40px;height:1px;background:#354b5d;vertical-align:middle;margin:0 10px}
+.chapter{min-height:100vh;display:flex;align-items:center;padding:90px 8vw;position:relative}
+.chapter.left{justify-content:flex-start}.chapter.right{justify-content:flex-end}
+.card{width:min(520px,90vw);padding:27px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(5,12,20,.83),rgba(3,8,14,.58));backdrop-filter:blur(16px);box-shadow:0 30px 100px rgba(0,0,0,.3);opacity:0;transform:translateY(50px);transition:opacity .9s,transform .9s}
+.chapter.visible .card{opacity:1;transform:none}
+.num{font-size:8px;letter-spacing:.24em;color:var(--cyan);margin-bottom:11px}
+.card h2{font-size:39px;letter-spacing:-.045em;margin:0 0 12px}
+.card p{font-size:13px;line-height:1.75;color:#8398a8;margin:0}
+.tag{display:inline-block;margin-top:17px;padding:7px 9px;border:1px solid rgba(255,255,255,.08);color:#adc2cf;font-size:8px;letter-spacing:.15em}
+.section{padding:120px 7vw;min-height:100vh;position:relative}
+.section-inner{max-width:1180px;margin:auto}
+.section-head{max-width:760px;margin-bottom:35px}
+.section-no{color:var(--cyan);font-size:9px;letter-spacing:.25em;font-weight:800;margin-bottom:10px}
+.section h2{font-size:clamp(38px,5vw,68px);letter-spacing:-.055em;line-height:.95;margin:0 0 15px}
+.section-head p{color:#8195a5;line-height:1.75;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.panel{padding:20px;border:1px solid rgba(120,200,255,.12);background:rgba(5,12,20,.66);backdrop-filter:blur(15px);transition:.35s;position:relative;overflow:hidden}
+.panel:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(113,231,255,.05),transparent);transform:translateX(-100%);transition:.6s}
+.panel:hover{transform:translateY(-5px);border-color:rgba(113,231,255,.3);box-shadow:0 20px 55px rgba(0,0,0,.3)}.panel:hover:before{transform:translateX(100%)}
+.panel h3{margin:0 0 9px;font-size:15px}.panel p{margin:0;color:#7f94a5;font-size:11px;line-height:1.7}
+.metric{padding:19px;border:1px solid rgba(113,231,255,.13);background:rgba(6,14,23,.72);min-height:120px}
+.metric b{display:block;font-size:26px;letter-spacing:-.04em}.metric span{display:block;color:#7f94a5;font-size:10px;margin-top:7px}.metric small{display:block;color:var(--cyan);font-size:7px;letter-spacing:.15em;margin-top:13px}
+.info{padding:17px 19px;border-left:3px solid var(--cyan);background:rgba(113,231,255,.045);color:#a9bbc7;font-size:12px;line-height:1.7;margin:18px 0}
+.green{border-left-color:var(--green);background:rgba(101,243,174,.04)}.orange{border-left-color:var(--orange);background:rgba(255,189,104,.04)}
+table{width:100%;border-collapse:collapse;font-size:10px;background:rgba(4,10,17,.62);border:1px solid rgba(255,255,255,.07)}
+th,td{padding:11px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}th{color:#aeeeff;font-size:8px;letter-spacing:.12em;text-transform:uppercase}td{color:#8296a6}tr:hover td{background:rgba(113,231,255,.025)}
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;align-items:center}.flow div{padding:15px 8px;text-align:center;border:1px solid rgba(113,231,255,.17);background:rgba(7,15,24,.75);font-size:8px;letter-spacing:.1em;position:relative}.flow div:not(:last-child):after{content:"→";position:absolute;right:-8px;top:50%;color:var(--cyan);z-index:2}
+.footer{padding:80px 7vw 120px;text-align:center;color:#5f7484;font-size:10px;border-top:1px solid rgba(255,255,255,.06)}.footer b{color:#bceeff}
+.controls{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:25;display:flex;gap:7px;pointer-events:auto}
+button{font:inherit;background:rgba(3,9,16,.8);color:#dff8ff;border:1px solid rgba(113,231,255,.22);padding:9px 13px;font-size:8px;letter-spacing:.14em;cursor:pointer;backdrop-filter:blur(14px)}
+button:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(113,231,255,.15)}button.stop{color:#ffc3d0;border-color:rgba(255,111,145,.3)}
+@media(max-width:900px){.nav{display:none}.hud{right:12px;width:165px}.hero{padding-left:25px}.grid,.grid4{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.flow div:not(:last-child):after{display:none}}
+@media(max-width:600px){.top{padding:0 16px}.hud{transform:scale(.78);transform-origin:top right}.hero{padding:110px 20px 70px}.hero p{font-size:12px}.grid,.grid4{grid-template-columns:1fr}.chapter{padding:70px 20px}.card h2{font-size:31px}.section{padding:100px 20px}.center-label{top:57%}.controls{bottom:10px}.controls button{padding:8px 9px}.flow{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div id="scene"></div>
-<div id="ambient">
-  <div class="ambient-orb a1"></div>
-  <div class="ambient-orb a2"></div>
-  <div class="ambient-orb a3"></div>
+<canvas id="world"></canvas><div id="fx"></div><div id="noise"></div>
+<div class="progress"><i id="progress"></i></div>
+
+<div id="app">
+<header class="top"><div class="brand"><div class="mark"></div>VAANI</div><div class="live"><span class="dot"></span><span id="liveText">SYSTEM ONLINE · EDGE INTELLIGENCE</span></div></header>
+
+<nav class="nav" id="nav">
+<a href="#hero">00 · CORE</a><a href="#problem">01 · PROBLEM</a><a href="#solution">02 · SOLUTION</a><a href="#evidence">03 · EVIDENCE</a><a href="#hardware">04 · HARDWARE</a><a href="#validation">05 · VALIDATION</a><a href="#market">06 · MARKET</a><a href="#roadmap">07 · ROADMAP</a><a href="#sources">08 · SOURCES</a>
+</nav>
+
+<div class="hud">
+<div class="hudbox"><div class="hudtitle">NEURAL STATE</div><div class="state" id="state">IDLE</div><div class="meter"><i id="meter"></i></div></div>
+<div class="hudbox">
+<div class="row"><span>AUDIO</span><span id="audio">12%</span></div>
+<div class="row"><span>LATENCY</span><span id="latency">20 ms</span></div>
+<div class="row"><span>CONFIDENCE</span><span id="confidence">98.4%</span></div>
+<div class="row"><span>MEMORY</span><span>72 KB</span></div>
+<div class="row"><span>CPU</span><span id="cpu">6.2%</span></div>
 </div>
-<div id="vignette"></div>
-<div id="grain"></div>
+</div>
 
-<div id="ui">
-  <header class="topbar">
-    <div class="brand"><div class="brand-mark"></div><span>VAANI</span></div>
-    <div class="status"><span class="status-dot"></span><span id="systemStatus">SYSTEM ONLINE · EDGE INTELLIGENCE</span></div>
-  </header>
+<div class="center-label"><div class="small" id="coreSmall">SYSTEM READY</div><div class="big">VAANI INTELLIGENCE CORE</div></div>
 
-  <section class="hero-copy" id="heroCopy">
-    <div class="eyebrow">AGENTIC EDGE INTELLIGENCE</div>
-    <h1>Voice.<br>Reimagined.</h1>
-    <p>A living visual model of <strong>VAANI</strong> — from the instant a keyword is detected on-device to the moment the remote ASR pipeline returns intelligence.</p>
-  </section>
+<section class="hero" id="hero">
+<div class="hero-copy" id="heroCopy">
+<div class="kicker">SMART INDIA HACKATHON 2026 · SIH26172 · ISRO · HARDWARE</div>
+<h1>VAANI</h1>
+<h2>Local Wake. Remote Intelligence.</h2>
+<p>An edge-first voice activation architecture where the device continuously understands <b>when to listen</b> locally, then moves only useful speech into remote intelligence.</p>
+<div class="chips"><span class="chip">CUSTOM KWS</span><span class="chip">TINYML</span><span class="chip">EDGE AI</span><span class="chip">OFFLINE-FIRST</span><span class="chip">ESP32-S3</span><span class="chip">POST-WAKE STREAMING</span></div>
+</div>
+</section>
 
-  <aside class="hud">
-    <div class="hud-card">
-      <div class="hud-title">NEURAL STATE</div>
-      <div class="hud-state" id="state">IDLE</div>
-      <div class="bar"><i id="stateBar"></i></div>
-    </div>
-    <div class="hud-card">
-      <div class="hud-row"><span class="hud-label">AUDIO ACTIVITY</span><span class="hud-value" id="audio">12%</span></div>
-      <div class="hud-row"><span class="hud-label">LATENCY</span><span class="hud-value" id="latency">20 ms</span></div>
-      <div class="hud-row"><span class="hud-label">CONFIDENCE</span><span class="hud-value" id="confidence">98.4%</span></div>
-      <div class="hud-row"><span class="hud-label">MEMORY</span><span class="hud-value">72 KB</span></div>
-      <div class="hud-row"><span class="hud-label">CPU</span><span class="hud-value" id="cpu">6.2%</span></div>
-    </div>
-  </aside>
+<section class="chapter left" data-state="LISTENING"><div class="card"><div class="num">01 · VOICE INPUT</div><h2>The world speaks.</h2><p>The microphone captures the acoustic scene while VAANI keeps the first layer of intelligence local, private and lightweight.</p><span class="tag">I2S MEMS · AUDIO STREAM</span></div></section>
+<section class="chapter right" data-state="PROCESSING"><div class="card"><div class="num">02 · EDGE PROCESSING</div><h2>Intelligence starts here.</h2><p>Audio reaches the ESP32 edge device, where the signal is conditioned before the custom keyword model evaluates it.</p><span class="tag">ESP32 · LOW POWER</span></div></section>
+<section class="chapter left" data-state="WAKE DETECTED"><div class="card"><div class="num">03 · KEYWORD DETECTION</div><h2>One phrase changes the state.</h2><p>The local KWS model watches continuously. A confident match wakes the rest of the pipeline without streaming everything to the cloud.</p><span class="tag">CUSTOM KWS · ON DEVICE</span></div></section>
+<section class="chapter right" data-state="ASR"><div class="card"><div class="num">04 · NETWORK HANDOFF</div><h2>Only useful audio moves.</h2><p>After wake detection, the following audio is routed toward the remote recognition layer with a deliberate low-latency handoff.</p><span class="tag">WI-FI · DATA PACKETS</span></div></section>
+<section class="chapter left" data-state="RESPONSE"><div class="card"><div class="num">05 · REMOTE ASR</div><h2>Speech becomes language.</h2><p>The remote ASR service receives the active speech stream and converts it into structured text for the assistant pipeline.</p><span class="tag">ASR · TRANSCRIPTION</span></div></section>
 
-  <div class="core-label">
-    <div class="small" id="coreSmall">SYSTEM READY</div>
-    <div class="big">VAANI INTELLIGENCE CORE</div>
-  </div>
+<section class="section" id="problem"><div class="section-inner">
+<div class="section-head"><div class="section-no">01 · THE PROBLEM</div><h2>Continuous listening should not mean continuous cloud processing.</h2><p>VAANI addresses the engineering gap between always-on voice activation and resource-constrained edge hardware.</p></div>
+<div class="grid">
+<div class="panel"><h3>Continuous Listening</h3><p>The edge device inspects incoming audio continuously without requiring a full remote speech stack to run all the time.</p></div>
+<div class="panel"><h3>False Activation</h3><p>Incorrect wake events can trigger unnecessary recording, network transmission and speech-recognition processing.</p></div>
+<div class="panel"><h3>Low Latency</h3><p>The system measures the path from keyword ending to local detection, stream start and first remote packet.</p></div>
+</div>
+<div class="info green"><b>Core requirement:</b> keep the wake decision local; open the network speech path only after a valid custom wake event.</div>
+</div></section>
 
-  <div id="detail">
-    <div class="detail-box">
-      <div class="detail-kicker" id="detailKicker">COMPONENT</div>
-      <div class="detail-title" id="detailTitle">VAANI CORE</div>
-      <div class="detail-text" id="detailText">Interactive system component.</div>
-      <div class="detail-grid">
-        <div><small>TYPE</small><b id="detailType">CORE</b></div>
-        <div><small>PATH</small><b id="detailPath">EDGE</b></div>
-        <div><small>INPUT</small><b id="detailInput">AUDIO</b></div>
-        <div><small>OUTPUT</small><b id="detailOutput">EVENT</b></div>
-      </div>
-      <button class="detail-close" id="detailClose">CLOSE DETAILS</button>
-    </div>
-  </div>
+<section class="section" id="solution"><div class="section-inner">
+<div class="section-head"><div class="section-no">02 · VAANI SOLUTION</div><h2>A living edge-to-cloud pipeline.</h2><p>The 3D world behind this page represents the actual intended architecture rather than being a decorative demo.</p></div>
+<div class="flow"><div>MIC</div><div>DSP</div><div>CUSTOM KWS</div><div>WAKE EVENT</div><div>REMOTE ASR</div><div>RESPONSE</div></div>
+<div class="grid" style="margin-top:20px">
+<div class="panel"><h3>LOCAL PATH</h3><p>Microphone → DSP → TinyML KWS → confidence decision. This path operates continuously on the edge device.</p></div>
+<div class="panel"><h3>NETWORK PATH</h3><p>Wake → pre-roll → audio streaming → remote ASR → application. This path activates only after a valid wake event.</p></div>
+<div class="panel"><h3>EDGE GATE</h3><p>The wake decision is the architectural boundary between low-power local intelligence and heavier remote processing.</p></div>
+</div>
+</div></section>
 
-  <div id="toast">VAANI TEST STARTED</div>
+<section class="section" id="evidence"><div class="section-inner">
+<div class="section-head"><div class="section-no">03 · EVIDENCE</div><h2>Numbers are shown with their evidence status.</h2><p>External market and connectivity figures are context, not VAANI measurements.</p></div>
+<div class="grid4">
+<div class="metric"><b>₹3,516 Cr</b><span>India voice/speech market · 2025</span><small>EXTERNAL ESTIMATE</small></div>
+<div class="metric"><b>₹4,811 Cr</b><span>Modeled conversion of India IoT 2025 context</span><small>EXTERNAL CONTEXT</small></div>
+<div class="metric"><b>42.77 Cr</b><span>Rural internet subscribers · Sep 2025</span><small>EXTERNAL</small></div>
+<div class="metric"><b>98.09%</b><span>Reported mobile connectivity of villages · Dec 2025</span><small>EXTERNAL</small></div>
+</div>
+<div class="info orange"><b>Evidence rule:</b> external benchmarks and market estimates are never presented as achieved VAANI hardware performance.</div>
+</div></section>
 
-  <div class="controls">
-    <button class="primary" id="activate">ACTIVATE VAANI</button>
-    <button class="stop" id="stop">STOP TEST</button>
-    <button id="resetView">RESET VIEW</button>
-  </div>
+<section class="section" id="hardware"><div class="section-inner">
+<div class="section-head"><div class="section-no">04 · PHYSICAL HARDWARE</div><h2>The 3D circuit is the system architecture.</h2><p>Click components in the 3D world. Scroll through the page to watch the system move from voice input to response.</p></div>
+<table><tr><th>Component</th><th>Role</th><th>Why it matters</th></tr>
+<tr><td>ESP32-S3</td><td>Edge MCU + local inference + connectivity</td><td>MCU-class deployment</td></tr>
+<tr><td>I2S MEMS microphone</td><td>Digital audio capture</td><td>Low-noise digital interface</td></tr>
+<tr><td>TinyML runtime</td><td>Local KWS inference</td><td>Low-resource inference</td></tr>
+<tr><td>Wi-Fi</td><td>Post-wake transport</td><td>Fast handoff after wake</td></tr>
+<tr><td>Remote ASR backend</td><td>Speech recognition after activation</td><td>Heavy processing stays off MCU</td></tr>
+</table>
+</div></section>
 
-  <div class="arch">
-    <span>01 <b>MIC</b></span><span>02 <b>ESP32</b></span><span>03 <b>KWS</b></span><span>04 <b>Wi-Fi</b></span><span>05 <b>ASR</b></span>
-  </div>
-  <div class="scroll-hint" id="scrollHint"><i></i>SCROLL TO EXPLORE<i></i></div>
+<section class="section" id="validation"><div class="section-inner">
+<div class="section-head"><div class="section-no">05 · SIH VALIDATION</div><h2>Build the proof into the interface.</h2><p>Every important claim maps to a reproducible hardware measurement.</p></div>
+<table><tr><th>Metric</th><th>Engineering target</th><th>How VAANI measures it</th></tr>
+<tr><td>RAM</td><td>&lt;256 KB</td><td>Peak runtime + model arena + buffers</td></tr>
+<tr><td>Idle CPU</td><td>&lt;10%</td><td>Continuous idle listening</td></tr>
+<tr><td>True-positive rate</td><td>High</td><td>Correct detections / wake trials</td></tr>
+<tr><td>False activations/hour</td><td>Near zero</td><td>Long-duration wake test</td></tr>
+<tr><td>Inference latency</td><td>Low</td><td>DSP + model execution timing</td></tr>
+<tr><td>Wake → ASR</td><td>T3 − T0</td><td>Mean / median / P95 timestamp log</td></tr>
+</table>
+<div class="info"><b>Latency chain:</b> T0 keyword ends → T1 local detection → T2 stream starts → T3 first server packet.</div>
+</div></section>
 
-  <section class="chapter" data-stage="0">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">01 · VOICE INPUT</div><h2>The world speaks.</h2><p>The microphone captures the acoustic scene while VAANI keeps the first layer of intelligence local, private and lightweight.</p><span class="tag">I2S MEMS · AUDIO STREAM</span></div></div>
-  </section>
-  <section class="chapter" data-stage="1">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">02 · EDGE PROCESSING</div><h2>Intelligence starts here.</h2><p>Audio reaches the ESP32 edge device, where the signal is conditioned before the custom keyword model evaluates it.</p><span class="tag">ESP32 · LOW POWER</span></div></div>
-  </section>
-  <section class="chapter" data-stage="2">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">03 · KEYWORD DETECTION</div><h2>One phrase changes the state.</h2><p>The local KWS model watches continuously. A confident match wakes the rest of the pipeline without streaming everything to the cloud.</p><span class="tag">CUSTOM KWS · ON DEVICE</span></div></div>
-  </section>
-  <section class="chapter" data-stage="3">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">04 · NETWORK HANDOFF</div><h2>Only useful audio moves.</h2><p>After wake detection, the following audio is routed toward the remote recognition layer with a deliberate low-latency handoff.</p><span class="tag">WI-FI · DATA PACKETS</span></div></div>
-  </section>
-  <section class="chapter" data-stage="4">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">05 · REMOTE ASR</div><h2>Speech becomes language.</h2><p>The remote ASR service receives the active speech stream and converts it into structured text for the assistant pipeline.</p><span class="tag">ASR · TRANSCRIPTION</span></div></div>
-  </section>
-  <section class="chapter" data-stage="5">
-    <div class="chapter-inner"><div class="chapter-card"><div class="chapter-num">06 · RESPONSE</div><h2>VAANI responds.</h2><p>The completed interaction returns to the system. The core shifts back to an idle state, ready for the next activation.</p><span class="tag">RESPONSE · READY</span></div></div>
-  </section>
+<section class="section" id="market"><div class="section-inner">
+<div class="section-head"><div class="section-no">06 · MARKET + BUSINESS</div><h2>From reference technology to deployment.</h2><p>The commercialization model can combine custom KWS, firmware integration, hardware, support and deployment services.</p></div>
+<div class="grid4">
+<div class="metric"><b>₹3,516 Cr</b><span>TAM · external 2025 voice/speech estimate</span><small>EXTERNAL</small></div>
+<div class="metric"><b>₹879 Cr</b><span>SAM · modeled 25% subset</span><small>MODELED</small></div>
+<div class="metric"><b>₹26.4 Cr</b><span>SOM · modeled 3% SAM scenario</span><small>PLANNING</small></div>
+<div class="metric"><b>₹0.??</b><span>ASR cost depends on actual usage</span><small>MEASURE</small></div>
+</div>
+<div class="grid" style="margin-top:18px">
+<div class="panel"><h3>IoT OEM</h3><p>Custom KWS + firmware integration, per-device or product-family licensing.</p></div>
+<div class="panel"><h3>Industrial / Enterprise</h3><p>Reference design, fleet deployment, support and updates.</p></div>
+<div class="panel"><h3>Government / Public Sector</h3><p>Local or low-connectivity voice interfaces and project implementation.</p></div>
+</div>
+</div></section>
+
+<section class="section" id="roadmap"><div class="section-inner">
+<div class="section-head"><div class="section-no">07 · ROADMAP</div><h2>Prototype → measured device → deployment.</h2><p>The animation is intentionally tied to the real engineering roadmap.</p></div>
+<div class="grid">
+<div class="panel"><h3>01 · Architecture</h3><p>Problem-statement traceability and system architecture.</p></div>
+<div class="panel"><h3>02 · Dataset</h3><p>Custom keyword, negatives, noise and speaker diversity.</p></div>
+<div class="panel"><h3>03 · TinyML</h3><p>Compact KWS with quantization and memory profiling.</p></div>
+<div class="panel"><h3>04 · MCU</h3><p>Real-time microphone and local inference.</p></div>
+<div class="panel"><h3>05 · Wake Handoff</h3><p>Ring buffer and post-wake streaming.</p></div>
+<div class="panel"><h3>06 · Hardening</h3><p>Noise, distance and unseen-speaker tests.</p></div>
+<div class="panel"><h3>07 · Demonstration</h3><p>Physical device plus interactive digital twin.</p></div>
+<div class="panel"><h3>08 · Productization</h3><p>Pilot fleet, OTA, monitoring and support.</p></div>
+</div>
+</div></section>
+
+<section class="section" id="stack"><div class="section-inner">
+<div class="section-head"><div class="section-no">08 · TECHNOLOGY</div><h2>One visual language across the stack.</h2></div>
+<table><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+<tr><td>Audio</td><td>I2S MEMS microphone</td><td>Continuous audio capture</td></tr>
+<tr><td>DSP</td><td>MFCC / Log-Mel</td><td>Compact feature extraction</td></tr>
+<tr><td>AI</td><td>Custom TinyML KWS</td><td>Wake-word classification</td></tr>
+<tr><td>Runtime</td><td>TensorFlow Lite Micro / equivalent</td><td>MCU inference</td></tr>
+<tr><td>MCU</td><td>ESP32-S3</td><td>Edge execution</td></tr>
+<tr><td>Connectivity</td><td>Wi-Fi</td><td>Post-wake communication</td></tr>
+<tr><td>Backend</td><td>Python / remote ASR</td><td>Heavy speech processing</td></tr>
+<tr><td>Visualization</td><td>HTML + CSS + Three.js</td><td>Interactive system twin</td></tr>
+</table>
+</div></section>
+
+<section class="section" id="sources"><div class="section-inner">
+<div class="section-head"><div class="section-no">09 · SOURCES</div><h2>Research-backed. Clearly labelled.</h2><p>The portfolio distinguishes external evidence, modeled assumptions and future VAANI measurements.</p></div>
+<div class="grid">
+<div class="panel"><h3>S1 · SIH26172</h3><p>Official Smart India Hackathon problem statement.</p></div>
+<div class="panel"><h3>S2 · India Voice Market</h3><p>External India speech and voice recognition market estimate.</p></div>
+<div class="panel"><h3>S3 · India IoT</h3><p>External India IoT market context.</p></div>
+<div class="panel"><h3>S4 · Cloud STT Pricing</h3><p>Public reference pricing used only for cost scenarios.</p></div>
+<div class="panel"><h3>S5 · Misactivation Research</h3><p>External smart-speaker false activation research context.</p></div>
+<div class="panel"><h3>S9 · ESP32-S3</h3><p>Espressif hardware documentation and datasheet.</p></div>
+<div class="panel"><h3>S11 · Arm KWS</h3><p>Embedded keyword spotting feasibility reference.</p></div>
+<div class="panel"><h3>S12 · Speech Commands</h3><p>Google Research speech dataset reference.</p></div>
+</div>
+</div></section>
+
+<footer class="footer"><b>VAANI · SIH26172</b><br><br>Edge-first voice activation for low-power intelligent devices.<br><br>External figures are identified as external. TAM/SAM/SOM values are modeled. Hardware performance must be measured before being labelled as achieved.</footer>
+
+<div class="controls"><button id="activate">ACTIVATE VAANI</button><button class="stop" id="stop">STOP TEST</button><button id="reset">RESET VIEW</button></div>
+<div class="scroll" id="scrollHint">MOVE · SCROLL · EXPLORE</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (() => {
 "use strict";
-
-const root=document.getElementById("scene");
+const canvas=document.getElementById("world");
 const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x03050a,.022);
+scene.fog=new THREE.FogExp2(0x02050a,.019);
+const camera=new THREE.PerspectiveCamera(47,innerWidth/innerHeight,.1,100);
+camera.position.set(0,1.5,14);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:"high-performance"});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputEncoding=THREE.sRGBEncoding;
+scene.add(new THREE.HemisphereLight(0x8fdfff,0x01030a,1.1));
+const light1=new THREE.PointLight(0x42dfff,16,30);light1.position.set(0,3,5);scene.add(light1);
+const light2=new THREE.PointLight(0x8b5cf6,13,28);light2.position.set(-7,-2,-5);scene.add(light2);
 
-const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,120);
-camera.position.set(0,1.8,15);
+const world=new THREE.Group();scene.add(world);
+const core=new THREE.Group();core.position.y=.6;world.add(core);
+const outer=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,3),new THREE.MeshBasicMaterial({color:0x6de7ff,wireframe:true,transparent:true,opacity:.48}));core.add(outer);
+const inner=new THREE.Mesh(new THREE.IcosahedronGeometry(.72,3),new THREE.MeshStandardMaterial({color:0x07121c,emissive:0x0e91bd,emissiveIntensity:3,metalness:.7,roughness:.25}));core.add(inner);
+const halo=new THREE.Mesh(new THREE.SphereGeometry(1.8,32,32),new THREE.MeshBasicMaterial({color:0x30d5ff,transparent:true,opacity:.045,side:THREE.BackSide}));core.add(halo);
 
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
-renderer.outputEncoding=THREE.sRGBEncoding;
-root.appendChild(renderer.domElement);
-
-const clock=new THREE.Clock();
-const world=new THREE.Group();
-scene.add(world);
-
-const glowMat=(color,opacity=1)=>new THREE.MeshBasicMaterial({color,transparent:true,opacity});
-const lineMat=(color,opacity=.35)=>new THREE.LineBasicMaterial({color,transparent:true,opacity});
-const cyan=0x62dcff, blue=0x3d7cff, violet=0x987cff, green=0x6df7b2;
-
-scene.add(new THREE.HemisphereLight(0x91dfff,0x02040a,1.1));
-const key=new THREE.PointLight(0x4ccfff,18,35); key.position.set(0,4,5); scene.add(key);
-const rim=new THREE.PointLight(0x805dff,14,28); rim.position.set(-7,-2,-5); scene.add(rim);
-
-function makeLine(points,material){
-  const g=new THREE.BufferGeometry().setFromPoints(points);
-  return new THREE.Line(g,material);
+for(let i=0;i<12;i++){
+ const r=1.55+i*.16;
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.007,4,160),new THREE.MeshBasicMaterial({color:i%2?0x9b7cff:0x63e6ff,transparent:true,opacity:.2-i*.009}));
+ ring.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);core.add(ring);
 }
-
-const core=new THREE.Group();
-core.position.y=.4;
-world.add(core);
-
-const coreOuter=new THREE.Mesh(new THREE.IcosahedronGeometry(1.35,2),new THREE.MeshBasicMaterial({
-  color:0x5bdcff,wireframe:true,transparent:true,opacity:.52
-}));
-core.add(coreOuter);
-
-const coreInner=new THREE.Mesh(new THREE.IcosahedronGeometry(.82,2),new THREE.MeshStandardMaterial({
-  color:0x0a1a25,emissive:0x117fa7,emissiveIntensity:2.8,roughness:.25,metalness:.65
-}));
-core.add(coreInner);
-
-const coreGlow=new THREE.Mesh(new THREE.SphereGeometry(1.9,32,32),new THREE.MeshBasicMaterial({
-  color:0x36cfff,transparent:true,opacity:.045,side:THREE.BackSide
-}));
-core.add(coreGlow);
-
-const rings=[];
-for(let i=0;i<9;i++){
-  const r=1.8+i*.18;
-  const ring=new THREE.Mesh(
-    new THREE.TorusGeometry(r,.008,4,160),
-    new THREE.MeshBasicMaterial({color:i%2?violet:cyan,transparent:true,opacity:.22-i*.012})
-  );
-  ring.rotation.set(
-    Math.random()*Math.PI,
-    Math.random()*Math.PI,
-    Math.random()*Math.PI
-  );
-  core.add(ring); rings.push(ring);
-}
-
 const orbiters=[];
-for(let i=0;i<26;i++){
-  const a=i/26*Math.PI*2;
-  const radius=2.1+(i%5)*.34;
-  const mesh=new THREE.Mesh(new THREE.SphereGeometry(.028+(i%3)*.012,8,8),glowMat(i%4===0?violet:cyan,.65));
-  mesh.userData={a,radius,speed:.22+(i%7)*.025,offset:i*.37};
-  core.add(mesh); orbiters.push(mesh);
+for(let i=0;i<36;i++){
+ const m=new THREE.Mesh(new THREE.SphereGeometry(.022+(i%4)*.009,7,7),new THREE.MeshBasicMaterial({color:i%5===0?0x9b7cff:0x71e7ff}));
+ m.userData={a:i/36*Math.PI*2,r:2+(i%6)*.28,s:.18+(i%6)*.018};core.add(m);orbiters.push(m);
 }
 
 const nodes=[
- {id:"mic",title:"I2S MEMS MICROPHONE",type:"INPUT",path:"LOCAL EDGE",input:"SOUND",output:"PCM AUDIO",pos:[-5.6,1.8,.2],color:cyan},
- {id:"esp",title:"ESP32 EDGE DEVICE",type:"MCU",path:"LOCAL EDGE",input:"PCM AUDIO",output:"FEATURES",pos:[-3.7,.2,.3],color:blue},
- {id:"kws",title:"CUSTOM KWS",type:"MODEL",path:"ON DEVICE",input:"FEATURES",output:"WAKE EVENT",pos:[-2.0,2.1,.5],color:violet},
- {id:"wifi",title:"WI-FI HANDOFF",type:"NETWORK",path:"TRANSPORT",input:"ACTIVE AUDIO",output:"STREAM",pos:[2.3,-1.5,.2],color:cyan},
- {id:"asr",title:"REMOTE ASR",type:"SERVICE",path:"REMOTE",input:"AUDIO STREAM",output:"TEXT",pos:[5.2,1.8,-.2],color:green},
- {id:"response",title:"VAANI RESPONSE",type:"OUTPUT",path:"SYSTEM",input:"TEXT",output:"ACTION",pos:[3.8,3.8,.6],color:violet}
+{id:"mic",name:"I2S MEMS MICROPHONE",p:[-5.6,1.7,.1],c:0x71e7ff},
+{id:"esp",name:"ESP32-S3 EDGE MCU",p:[-3.6,-.1,.3],c:0x4d8dff},
+{id:"kws",name:"CUSTOM KWS",p:[-1.7,2.2,.4],c:0x9b7cff},
+{id:"wifi",name:"WI-FI HANDOFF",p:[2.2,-1.4,.2],c:0x71e7ff},
+{id:"asr",name:"REMOTE ASR",p:[5.1,1.8,-.1],c:0x65f3ae},
+{id:"response",name:"VAANI RESPONSE",p:[3.5,3.9,.6],c:0x9b7cff}
 ];
-
-const nodeGroup=new THREE.Group(); world.add(nodeGroup);
-const nodeObjects={};
+const nodeGroup=new THREE.Group();world.add(nodeGroup), nodeMap={};
 nodes.forEach((n,i)=>{
-  const g=new THREE.Group(); g.position.set(...n.pos); g.userData=n;
-  const plate=new THREE.Mesh(new THREE.BoxGeometry(1.5,.12,1.05),new THREE.MeshStandardMaterial({
-    color:0x07111b,emissive:n.color,emissiveIntensity:.28,metalness:.7,roughness:.3,transparent:true,opacity:.9
-  }));
-  plate.rotation.z=(i%2?-.06:.06);
-  g.add(plate);
-  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.52,.13,1.07)),lineMat(n.color,.6));
-  g.add(frame);
-  const pin=new THREE.Mesh(new THREE.SphereGeometry(.08,8,8),glowMat(n.color,.9));
-  pin.position.y=.13; g.add(pin);
-  const halo=new THREE.Mesh(new THREE.CircleGeometry(.65,32),new THREE.MeshBasicMaterial({
-    color:n.color,transparent:true,opacity:.035,side:THREE.DoubleSide,depthWrite:false
-  }));
-  halo.rotation.x=-Math.PI/2; halo.position.y=-.08; g.add(halo);
-  g.userData=n; nodeGroup.add(g); nodeObjects[n.id]=g;
+ const g=new THREE.Group();g.position.set(...n.p);g.userData=n;
+ const plate=new THREE.Mesh(new THREE.BoxGeometry(1.45,.12,.95),new THREE.MeshStandardMaterial({color:0x07111b,emissive:n.c,emissiveIntensity:.22,metalness:.7,roughness:.28}));
+ g.add(plate);
+ const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.48,.14,.98)),new THREE.LineBasicMaterial({color:n.c,transparent:true,opacity:.62}));g.add(edge);
+ const led=new THREE.Mesh(new THREE.SphereGeometry(.075,8,8),new THREE.MeshBasicMaterial({color:n.c}));led.position.y=.13;g.add(led);
+ nodeGroup.add(g);nodeMap[n.id]=g;
 });
 
-const routes=[
- ["mic","esp",cyan],["esp","kws",violet],["kws","wifi",cyan],
- ["wifi","asr",green],["asr","response",violet],["response","kws",cyan]
-];
-const routeLines=[];
+const routes=[["mic","esp"],["esp","kws"],["kws","wifi"],["wifi","asr"],["asr","response"],["response","kws"]];
 const packets=[];
-function nodePoint(id){return nodeObjects[id].position.clone();}
 routes.forEach((r,ri)=>{
-  const a=nodePoint(r[0]),b=nodePoint(r[1]);
-  const mid=a.clone().lerp(b,.5); mid.y+=ri%2?-.55:.55;
-  const curve=new THREE.QuadraticBezierCurve3(a,mid,b);
-  const pts=curve.getPoints(48);
-  const line=makeLine(pts,lineMat(r[2],.24)); world.add(line);
-  routeLines.push({curve,line,color:r[2]});
-  for(let j=0;j<2;j++){
-    const p=new THREE.Mesh(new THREE.SphereGeometry(.055,8,8),glowMat(r[2],.9));
-    p.userData={curve,t:(j/2),speed:.085+ri*.004,color:r[2]};
-    world.add(p); packets.push(p);
-  }
+ const a=nodeMap[r[0]].position.clone(),b=nodeMap[r[1]].position.clone(),m=a.clone().lerp(b,.5);m.y+=(ri%2?-0.5:.5);
+ const curve=new THREE.QuadraticBezierCurve3(a,m,b);
+ const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)),new THREE.LineBasicMaterial({color:ri===4?0x65f3ae:0x4fcfff,transparent:true,opacity:.24}));world.add(line);
+ for(let j=0;j<2;j++){const p=new THREE.Mesh(new THREE.SphereGeometry(.05,7,7),new THREE.MeshBasicMaterial({color:ri===4?0x65f3ae:0x71e7ff}));p.userData={curve,t:j*.5,s:.09+ri*.005};world.add(p);packets.push(p)}
 });
 
-const traces=new THREE.Group(); world.add(traces);
-for(let i=0;i<42;i++){
-  const y=(Math.random()-.5)*7;
-  const x=(Math.random()-.5)*13;
-  const len=.4+Math.random()*1.7;
-  const pts=[new THREE.Vector3(x,y,-1.3),new THREE.Vector3(x+len,y,-1.3)];
-  traces.add(makeLine(pts,lineMat(i%3?blue:cyan,.10)));
+const starsG=new THREE.BufferGeometry(),N=1400,pos=new Float32Array(N*3);
+for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*55;pos[i*3+1]=(Math.random()-.5)*34;pos[i*3+2]=(Math.random()-.5)*45-8}
+starsG.setAttribute("position",new THREE.BufferAttribute(pos,3));
+const stars=new THREE.Points(starsG,new THREE.PointsMaterial({color:0x8bdfff,size:.035,transparent:true,opacity:.58}));scene.add(stars);
+
+const grid=new THREE.GridHelper(28,28,0x174b63,0x092231);grid.position.y=-4.1;grid.material.transparent=true;grid.material.opacity=.13;world.add(grid);
+
+let mouseX=0,mouseY=0,targetZ=14,targetX=0,targetY=1.5,run=false,timer=null;
+const stateData={
+IDLE:["12%","20 ms","98.4%","6.2%","SYSTEM READY",22],
+LISTENING:["67%","18 ms","97.9%","9.8%","LISTENING",48],
+"WAKE DETECTED":["91%","14 ms","99.2%","12.4%","WAKE DETECTED",72],
+PROCESSING:["74%","22 ms","98.8%","18.7%","PROCESSING",86],
+ASR:["83%","46 ms","98.1%","14.1%","REMOTE ASR",94],
+RESPONSE:["36%","31 ms","99.0%","8.4%","RESPONSE READY",65],
+STOPPED:["0%","—","—","2.1%","TEST STOPPED",8]
+};
+function setState(s){
+ document.getElementById("state").textContent=s;
+ const d=stateData[s]||stateData.IDLE;
+ ["audio","latency","confidence","cpu","coreSmall"].forEach((id,i)=>document.getElementById(id).textContent=d[i]);
+ document.getElementById("meter").style.width=d[5]+"%";
+ document.getElementById("liveText").textContent=s==="STOPPED"?"SYSTEM PAUSED · TEST STOPPED":"SYSTEM ONLINE · EDGE INTELLIGENCE";
 }
-for(let i=0;i<30;i++){
-  const p=new THREE.Mesh(new THREE.BoxGeometry(.035,.035,.035),glowMat(i%3?cyan:violet,.35));
-  p.position.set((Math.random()-.5)*13,(Math.random()-.5)*7,-1.25);
-  traces.add(p);
-}
-
-const stars=new THREE.BufferGeometry();
-const starCount=1100;
-const positions=new Float32Array(starCount*3);
-for(let i=0;i<starCount;i++){
-  positions[i*3]=(Math.random()-.5)*55;
-  positions[i*3+1]=(Math.random()-.5)*35;
-  positions[i*3+2]=(Math.random()-.5)*45-8;
-}
-stars.setAttribute("position",new THREE.BufferAttribute(positions,3));
-const starField=new THREE.Points(stars,new THREE.PointsMaterial({color:0x9bdcff,size:.035,transparent:true,opacity:.62}));
-scene.add(starField);
-
-const grid=new THREE.GridHelper(30,30,0x16445c,0x0a2030);
-grid.position.y=-4.3; grid.material.transparent=true; grid.material.opacity=.16;
-world.add(grid);
-
-let state="IDLE";
-let running=false;
-let testTimer=null;
-let scrollProgress=0;
-let targetCameraX=0,targetCameraY=1.8,targetCameraZ=15;
-let mouseX=0,mouseY=0;
-let selected=null;
-
-const stateEl=document.getElementById("state");
-const stateBar=document.getElementById("stateBar");
-const audioEl=document.getElementById("audio");
-const latencyEl=document.getElementById("latency");
-const confidenceEl=document.getElementById("confidence");
-const cpuEl=document.getElementById("cpu");
-const coreSmall=document.getElementById("coreSmall");
-const statusEl=document.getElementById("systemStatus");
-const toast=document.getElementById("toast");
-
-function showToast(msg){
-  toast.textContent=msg; toast.classList.add("show");
-  clearTimeout(showToast.t); showToast.t=setTimeout(()=>toast.classList.remove("show"),1500);
-}
-function setState(next){
-  state=next;
-  stateEl.textContent=next;
-  const map={IDLE:28,LISTENING:48,"WAKE DETECTED":72,PROCESSING:86,ASR:94,RESPONSE:64,STOPPED:12};
-  stateBar.style.width=(map[next]||30)+"%";
-  const vals={
-    IDLE:["12%","20 ms","98.4%","6.2%","SYSTEM READY"],
-    LISTENING:["67%","18 ms","97.9%","9.8%","LISTENING"],
-    "WAKE DETECTED":["91%","14 ms","99.2%","12.4%","WAKE DETECTED"],
-    PROCESSING:["74%","22 ms","98.8%","18.7%","PROCESSING"],
-    ASR:["83%","46 ms","98.1%","14.1%","REMOTE ASR"],
-    RESPONSE:["36%","31 ms","99.0%","8.4%","RESPONSE READY"],
-    STOPPED:["0%","—","—","2.1%","TEST STOPPED"]
-  };
-  const v=vals[next]||vals.IDLE;
-  audioEl.textContent=v[0]; latencyEl.textContent=v[1]; confidenceEl.textContent=v[2]; cpuEl.textContent=v[3]; coreSmall.textContent=v[4];
-  statusEl.textContent=next==="STOPPED"?"SYSTEM PAUSED · TEST STOPPED":"SYSTEM ONLINE · EDGE INTELLIGENCE";
-}
-
 const sequence=["LISTENING","WAKE DETECTED","PROCESSING","ASR","RESPONSE","IDLE"];
-function activate(){
-  if(running)return;
-  running=true;
-  setState("LISTENING"); showToast("VAANI TEST STARTED");
-  let i=0;
-  clearInterval(testTimer);
-  testTimer=setInterval(()=>{
-    i++;
-    if(i<sequence.length)setState(sequence[i]);
-    else stopTest(false);
-  },900);
-}
-function stopTest(show=true){
-  running=false; clearInterval(testTimer); testTimer=null; setState("STOPPED");
-  if(show)showToast("VAANI TEST STOPPED");
-}
-function resetView(){
-  scrollTo({top:0,behavior:"smooth"});
-  setState("IDLE"); running=false; clearInterval(testTimer);
-  targetCameraX=0; targetCameraY=1.8; targetCameraZ=15;
-  showToast("VIEW RESET");
-}
-document.getElementById("activate").onclick=activate;
-document.getElementById("stop").onclick=()=>stopTest(true);
-document.getElementById("resetView").onclick=resetView;
-
-const detail=document.getElementById("detail");
-function openDetail(n){
-  selected=n;
-  document.getElementById("detailKicker").textContent=n.type+" · VAANI";
-  document.getElementById("detailTitle").textContent=n.title;
-  document.getElementById("detailText").textContent=({
-    mic:"Captures the acoustic environment and provides the local PCM audio stream.",
-    esp:"Low-power edge controller that performs audio preparation and routes local inference.",
-    kws:"Custom keyword spotting model that continuously evaluates the local audio features.",
-    wifi:"Network handoff layer activated after a confident wake event.",
-    asr:"Remote automatic speech recognition layer that converts active speech into text.",
-    response:"Final assistant response layer that turns recognized intent into system output."
-  })[n.id]||"VAANI system component.";
-  document.getElementById("detailType").textContent=n.type;
-  document.getElementById("detailPath").textContent=n.path;
-  document.getElementById("detailInput").textContent=n.input;
-  document.getElementById("detailOutput").textContent=n.output;
-  detail.style.display="block";
-  showToast(n.title+" SELECTED");
-}
-document.getElementById("detailClose").onclick=()=>{detail.style.display="none";selected=null};
-
-const raycaster=new THREE.Raycaster();
-const pointer=new THREE.Vector2();
-function pointerUpdate(e){
-  const r=renderer.domElement.getBoundingClientRect();
-  pointer.x=((e.clientX-r.left)/r.width)*2-1;
-  pointer.y=-((e.clientY-r.top)/r.height)*2+1;
-}
-renderer.domElement.addEventListener("pointermove",e=>{
-  pointerUpdate(e);
-  mouseX=(e.clientX/innerWidth-.5);
-  mouseY=(e.clientY/innerHeight-.5);
-});
-renderer.domElement.addEventListener("pointerdown",e=>{
-  pointerUpdate(e);
-  raycaster.setFromCamera(pointer,camera);
-  const hits=raycaster.intersectObjects(nodeGroup.children,true);
-  if(hits.length){
-    let o=hits[0].object;
-    while(o.parent && !o.userData?.id)o=o.parent;
-    if(o.userData?.id)openDetail(o.userData);
-  }
-});
-
-window.addEventListener("keydown",e=>{
-  if(e.code==="Space"){e.preventDefault();activate()}
-  if(e.key==="Escape")detail.style.display="none";
-});
+function activate(){if(run)return;run=true;let i=0;setState(sequence[0]);clearInterval(timer);timer=setInterval(()=>{i++;if(i<sequence.length)setState(sequence[i]);else{clearInterval(timer);run=false}},850)}
+function stop(){clearInterval(timer);run=false;setState("STOPPED")}
+function reset(){scrollTo({top:0,behavior:"smooth"});world.rotation.set(0,0,0);targetZ=14;targetX=0;targetY=1.5;setState("IDLE")}
+document.getElementById("activate").onclick=activate;document.getElementById("stop").onclick=stop;document.getElementById("reset").onclick=reset;
+addEventListener("mousemove",e=>{mouseX=e.clientX/innerWidth-.5;mouseY=e.clientY/innerHeight-.5});
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
 
 const chapters=[...document.querySelectorAll(".chapter")];
-const observer=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add("active");
-      const stage=Number(entry.target.dataset.stage);
-      const stageStates=["LISTENING","PROCESSING","WAKE DETECTED","PROCESSING","ASR","RESPONSE"];
-      if(!running)setState(stageStates[stage]||"IDLE");
-    }
-  });
-},{threshold:.55});
-chapters.forEach(c=>observer.observe(c));
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");if(!run)setState(e.target.dataset.state)}}),{threshold:.45});chapters.forEach(x=>obs.observe(x));
+const sections=[...document.querySelectorAll(".section")],links=[...document.querySelectorAll(".nav a")];
+const sobs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+e.target.id))}}),{threshold:.35});sections.forEach(x=>sobs.observe(x));
 
-window.addEventListener("scroll",()=>{
-  const max=document.documentElement.scrollHeight-innerHeight;
-  scrollProgress=max>0?scrollY/max:0;
-  document.getElementById("scrollHint").style.opacity=scrollProgress>.05?"0":"1";
-  document.getElementById("heroCopy").style.opacity=String(Math.max(0,1-scrollProgress*4));
-  targetCameraZ=15-scrollProgress*5.8;
-  targetCameraY=1.8+Math.sin(scrollProgress*Math.PI)*1.2;
-  targetCameraX=(scrollProgress-.5)*5;
-  world.rotation.y=scrollProgress*.65;
-  world.rotation.x=(scrollProgress-.5)*.12;
+addEventListener("scroll",()=>{
+ const max=document.documentElement.scrollHeight-innerHeight,p=max?scrollY/max:0;
+ document.getElementById("progress").style.height=(p*100)+"%";
+ document.getElementById("heroCopy").style.transform=`translate3d(${mouseX*8}px,${scrollY*.08}px,0)`;
+ document.getElementById("heroCopy").style.opacity=Math.max(0,1-scrollY/700);
+ targetZ=14-p*5.8;targetY=1.5+Math.sin(p*Math.PI)*1.1;targetX=(p-.5)*4.5;
+ world.rotation.y=p*.72;world.rotation.x=(p-.5)*.12;
+ document.getElementById("scrollHint").style.opacity=p>.04?"0":"1";
 });
 
-function resize(){
-  camera.aspect=innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-}
-addEventListener("resize",resize);
-
+const clock=new THREE.Clock();
 function animate(){
-  requestAnimationFrame(animate);
-  const t=clock.getElapsedTime();
-  const dt=Math.min(clock.getDelta(),.05);
-
-  coreOuter.rotation.x=t*.18;
-  coreOuter.rotation.y=t*.28;
-  coreInner.rotation.x=-t*.1;
-  coreInner.rotation.y=-t*.22;
-  coreGlow.scale.setScalar(1+Math.sin(t*1.6)*.05);
-
-  rings.forEach((r,i)=>{
-    r.rotation.x+=dt*(.025+i*.003);
-    r.rotation.y+=dt*(i%2?.035:-.027);
-    r.rotation.z+=dt*(i%3?.018:-.012);
-  });
-
-  orbiters.forEach(o=>{
-    const u=o.userData;
-    const a=u.a+t*u.speed+u.offset;
-    o.position.set(Math.cos(a)*u.radius,Math.sin(a*1.15)*.55,Math.sin(a)*u.radius);
-  });
-
-  packets.forEach(p=>{
-    const u=p.userData;
-    u.t+=dt*u.speed;
-    if(u.t>1)u.t=0;
-    p.position.copy(u.curve.getPointAt(u.t));
-    p.scale.setScalar(1+Math.sin(t*8+u.t*10)*.25);
-  });
-
-  nodeGroup.children.forEach((n,i)=>{
-    const pulse=1+Math.sin(t*1.7+i)*.015;
-    n.scale.setScalar(pulse);
-    if(selected===n.userData){
-      n.rotation.y+=dt*.25;
-      n.children[0].material.emissiveIntensity=1.15+Math.sin(t*5)*.35;
-    }else{
-      n.children[0].material.emissiveIntensity=.28;
-    }
-  });
-
-  starField.rotation.y=t*.004;
-  starField.rotation.x=Math.sin(t*.05)*.01;
-  grid.position.z=Math.sin(t*.15)*.8;
-
-  camera.position.x+=(targetCameraX+mouseX*.7-camera.position.x)*.035;
-  camera.position.y+=(targetCameraY-mouseY*.45-camera.position.y)*.035;
-  camera.position.z+=(targetCameraZ-camera.position.z)*.035;
-  camera.lookAt(0,.5,0);
-
-  key.position.x=Math.sin(t*.45)*5;
-  key.position.z=Math.cos(t*.45)*5;
-
-  renderer.render(scene,camera);
+ requestAnimationFrame(animate);const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.05);
+ outer.rotation.x=t*.16;outer.rotation.y=t*.25;inner.rotation.x=-t*.1;inner.rotation.y=-t*.2;halo.scale.setScalar(1+Math.sin(t*1.6)*.045);
+ core.rotation.y+=dt*.025;
+ orbiters.forEach(o=>{const u=o.userData,a=u.a+t*u.s;o.position.set(Math.cos(a)*u.r,Math.sin(a*1.2)*.5,Math.sin(a)*u.r)});
+ packets.forEach(p=>{p.userData.t=(p.userData.t+dt*p.userData.s)%1;p.position.copy(p.userData.curve.getPointAt(p.userData.t));p.scale.setScalar(1+Math.sin(t*9+p.userData.t*8)*.25)});
+ nodeGroup.children.forEach((n,i)=>n.position.y=nodes[i].p[1]+Math.sin(t*1.4+i)*.035);
+ stars.rotation.y=t*.003;grid.position.z=Math.sin(t*.12)*.7;
+ camera.position.x+=(targetX+mouseX*.65-camera.position.x)*.035;camera.position.y+=(targetY-mouseY*.4-camera.position.y)*.035;camera.position.z+=(targetZ-camera.position.z)*.035;camera.lookAt(0,.5,0);
+ light1.position.x=Math.sin(t*.4)*5;light1.position.z=Math.cos(t*.4)*5;
+ renderer.render(scene,camera);
 }
-setState("IDLE");
-animate();
+setState("IDLE");animate();
 })();
 </script>
 </body>

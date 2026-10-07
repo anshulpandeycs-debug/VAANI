@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
+from textwrap import dedent
 import pandas as pd
 
 
@@ -62,7 +63,55 @@ html, body, [class*="css"] {
         sans-serif;
 }
 
+/* ---------- ANIMATED BACKGROUND ---------- */
+
+.stApp::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(34,211,238,.045), transparent 30%),
+        radial-gradient(circle at 20% 75%, rgba(37,99,235,.045), transparent 28%),
+        radial-gradient(circle at 82% 62%, rgba(34,211,238,.035), transparent 25%);
+    animation: vaaniAmbientPulse 9s ease-in-out infinite alternate;
+}
+
+.stApp::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .32;
+    background-image:
+        radial-gradient(circle, rgba(148,163,184,.7) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(34,211,238,.65) 0 1px, transparent 1.5px);
+    background-size: 97px 113px, 157px 181px;
+    background-position: 12px -40px, 63px -90px;
+    animation: vaaniStarDrift 28s linear infinite;
+}
+
+@keyframes vaaniAmbientPulse {
+    from { transform: scale(1); opacity: .72; }
+    to   { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes vaaniStarDrift {
+    from { transform: translate3d(0,-20px,0); }
+    to   { transform: translate3d(14px,150px,0); }
+}
+
+/* Keep all actual Streamlit content above the animated background. */
+[data-testid="stAppViewContainer"] > .main,
+[data-testid="stAppViewContainer"] .block-container {
+    position: relative;
+    z-index: 1;
+}
+
 /* ---------- HERO ---------- */
+
 
 .hero {
     position: relative;
@@ -215,6 +264,112 @@ html, body, [class*="css"] {
     text-transform: uppercase;
 }
 
+/* ---------- ENHANCED METRICS + AMBIENT MOTION ---------- */
+
+.stApp {
+    position: relative;
+    overflow-x: hidden;
+}
+
+.stApp::before {
+    content: "";
+    position: fixed;
+    inset: -18%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 18% 22%, rgba(34,211,238,.11), transparent 22%),
+        radial-gradient(circle at 78% 18%, rgba(37,99,235,.12), transparent 25%),
+        radial-gradient(circle at 52% 82%, rgba(34,197,94,.045), transparent 24%);
+    filter: blur(12px);
+    animation: vaaniAmbientDrift 18s ease-in-out infinite alternate;
+}
+
+.block-container {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes vaaniAmbientDrift {
+    0% {
+        transform: translate3d(-2%, -1%, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(2%, 1.5%, 0) scale(1.035);
+    }
+    100% {
+        transform: translate3d(-1%, 2%, 0) scale(1.015);
+    }
+}
+
+.metric-card {
+    background:
+        radial-gradient(circle at 88% 12%, rgba(34,211,238,.09), transparent 34%),
+        linear-gradient(145deg, rgba(14,31,48,.97), rgba(7,17,31,.97));
+    border: 1px solid rgba(34,211,238,.22);
+    box-shadow:
+        0 14px 42px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.035);
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(34,211,238,.42);
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.34),
+        0 0 28px rgba(34,211,238,.07);
+}
+
+.metric-number {
+    color: #FFFFFF;
+    text-shadow: 0 0 22px rgba(34,211,238,.13);
+}
+
+.metric-label {
+    color: #CBD5E1;
+}
+
+.metric-type {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(34,211,238,.08);
+    border: 1px solid rgba(34,211,238,.13);
+}
+
+div[data-testid="stMetric"] {
+    padding: 16px 18px;
+    border-radius: 17px;
+    background:
+        radial-gradient(circle at 90% 0%, rgba(34,211,238,.08), transparent 36%),
+        rgba(9,20,34,.92);
+    border: 1px solid rgba(34,211,238,.16);
+    box-shadow: 0 12px 35px rgba(0,0,0,.22);
+}
+
+div[data-testid="stMetricLabel"] {
+    color: #CBD5E1 !important;
+}
+
+div[data-testid="stMetricValue"] {
+    color: #FFFFFF !important;
+    font-size: 2.15rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -.035em;
+    text-shadow: 0 0 22px rgba(34,211,238,.12);
+}
+
+div[data-testid="stMetricDelta"] {
+    color: #22C55E !important;
+    font-weight: 700 !important;
+}
+
+div[data-testid="stMetricDelta"] svg {
+    fill: currentColor !important;
+}
+
+
 /* ---------- STATUS ---------- */
 
 .status-local {
@@ -303,9 +458,203 @@ html, body, [class*="css"] {
     font-size: .78rem;
 }
 
+
+
+/* ---------- FALLING STARS + DINOSAUR BACKGROUND ---------- */
+
+.vaani-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.falling-star {
+    position: absolute;
+    top: -30px;
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: #E0F2FE;
+    box-shadow: 0 0 7px rgba(103,232,249,.8);
+    opacity: .72;
+    animation: vaaniFallingStar var(--duration) linear infinite;
+    animation-delay: var(--delay);
+}
+
+.falling-star::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--size) * -5);
+    left: 50%;
+    width: 1px;
+    height: calc(var(--size) * 5);
+    transform: rotate(16deg);
+    transform-origin: bottom;
+    background: linear-gradient(to top, rgba(103,232,249,.38), transparent);
+}
+
+.s01 { --left: 4%;  --size: 2px; --duration: 13s; --delay: -3s; }
+.s02 { --left: 8%;  --size: 1px; --duration: 17s; --delay: -11s; }
+.s03 { --left: 13%; --size: 2px; --duration: 21s; --delay: -7s; }
+.s04 { --left: 18%; --size: 1px; --duration: 15s; --delay: -13s; }
+.s05 { --left: 23%; --size: 2px; --duration: 24s; --delay: -4s; }
+.s06 { --left: 29%; --size: 1px; --duration: 18s; --delay: -15s; }
+.s07 { --left: 34%; --size: 2px; --duration: 20s; --delay: -9s; }
+.s08 { --left: 39%; --size: 1px; --duration: 16s; --delay: -2s; }
+.s09 { --left: 44%; --size: 2px; --duration: 23s; --delay: -18s; }
+.s10 { --left: 49%; --size: 1px; --duration: 14s; --delay: -6s; }
+.s11 { --left: 54%; --size: 2px; --duration: 19s; --delay: -12s; }
+.s12 { --left: 59%; --size: 1px; --duration: 22s; --delay: -8s; }
+.s13 { --left: 64%; --size: 2px; --duration: 15s; --delay: -10s; }
+.s14 { --left: 69%; --size: 1px; --duration: 18s; --delay: -5s; }
+.s15 { --left: 74%; --size: 2px; --duration: 25s; --delay: -20s; }
+.s16 { --left: 79%; --size: 1px; --duration: 16s; --delay: -14s; }
+.s17 { --left: 84%; --size: 2px; --duration: 21s; --delay: -1s; }
+.s18 { --left: 89%; --size: 1px; --duration: 17s; --delay: -16s; }
+.s19 { --left: 94%; --size: 2px; --duration: 20s; --delay: -9s; }
+.s20 { --left: 97%; --size: 1px; --duration: 14s; --delay: -6s; }
+.s21 { --left: 26%; --size: 1px; --duration: 27s; --delay: -22s; }
+.s22 { --left: 47%; --size: 2px; --duration: 26s; --delay: -17s; }
+.s23 { --left: 72%; --size: 1px; --duration: 23s; --delay: -19s; }
+.s24 { --left: 91%; --size: 2px; --duration: 28s; --delay: -24s; }
+
+@keyframes vaaniFallingStar {
+    0% {
+        transform: translate3d(0,-30px,0);
+        opacity: 0;
+    }
+    8% { opacity: .72; }
+    50% { opacity: .9; }
+    92% { opacity: .35; }
+    100% {
+        transform: translate3d(80px,115vh,0);
+        opacity: 0;
+    }
+}
+
+.shooting-star {
+    position: absolute;
+    width: 90px;
+    height: 1px;
+    top: 8%;
+    left: -120px;
+    opacity: 0;
+    transform: rotate(24deg);
+    background: linear-gradient(90deg, transparent, rgba(224,242,254,.85), transparent);
+    box-shadow: 0 0 10px rgba(34,211,238,.55);
+    animation: vaaniShootingStar 12s linear infinite;
+}
+
+.shoot02 {
+    top: 34%;
+    animation-delay: -6s;
+    animation-duration: 17s;
+    width: 65px;
+}
+
+@keyframes vaaniShootingStar {
+    0%, 66% { transform: translate3d(-120px,0,0) rotate(24deg); opacity: 0; }
+    69% { opacity: .8; }
+    78% { transform: translate3d(125vw,48vh,0) rotate(24deg); opacity: 0; }
+    100% { opacity: 0; }
+}
+
+.vaani-dino {
+    position: fixed;
+    bottom: 18px;
+    z-index: 0;
+    font-size: clamp(48px, 6vw, 92px);
+    line-height: 1;
+    opacity: .075;
+    filter: grayscale(1) brightness(1.7) drop-shadow(0 0 18px rgba(34,211,238,.28));
+    animation: vaaniDinoFloat 5s ease-in-out infinite;
+}
+
+.dino-left {
+    left: 2.5%;
+    transform: scaleX(-1);
+    animation-delay: -.7s;
+}
+
+.dino-right {
+    right: 2.5%;
+    animation-delay: -2.3s;
+}
+
+.dino-back {
+    left: 50%;
+    bottom: 7%;
+    font-size: clamp(32px, 4vw, 62px);
+    opacity: .035;
+    transform: translateX(-50%);
+    animation-delay: -3.5s;
+}
+
+@keyframes vaaniDinoFloat {
+    0%,100% { margin-bottom: 0; filter: grayscale(1) brightness(1.7) drop-shadow(0 0 18px rgba(34,211,238,.2)); }
+    50% { margin-bottom: 8px; filter: grayscale(1) brightness(2) drop-shadow(0 0 24px rgba(34,211,238,.32)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .falling-star,
+    .shooting-star,
+    .vaani-dino,
+    .stApp::before,
+    .stApp::after {
+        animation: none !important;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
+
+
+# ============================================================
+# AMBIENT VISUAL LAYER
+# ============================================================
+
+st.markdown(
+    dedent("""
+    <div class="vaani-ambient" aria-hidden="true">
+        <div class="falling-star s01"></div>
+        <div class="falling-star s02"></div>
+        <div class="falling-star s03"></div>
+        <div class="falling-star s04"></div>
+        <div class="falling-star s05"></div>
+        <div class="falling-star s06"></div>
+        <div class="falling-star s07"></div>
+        <div class="falling-star s08"></div>
+        <div class="falling-star s09"></div>
+        <div class="falling-star s10"></div>
+        <div class="falling-star s11"></div>
+        <div class="falling-star s12"></div>
+        <div class="falling-star s13"></div>
+        <div class="falling-star s14"></div>
+        <div class="falling-star s15"></div>
+        <div class="falling-star s16"></div>
+        <div class="falling-star s17"></div>
+        <div class="falling-star s18"></div>
+        <div class="falling-star s19"></div>
+        <div class="falling-star s20"></div>
+        <div class="falling-star s21"></div>
+        <div class="falling-star s22"></div>
+        <div class="falling-star s23"></div>
+        <div class="falling-star s24"></div>
+
+        <div class="shooting-star shoot01"></div>
+        <div class="shooting-star shoot02"></div>
+
+        <div class="vaani-dino dino-left">🦖</div>
+        <div class="vaani-dino dino-right">🦖</div>
+        <div class="vaani-dino dino-back">🦕</div>
+    </div>
+    """),
+    unsafe_allow_html=True,
+)
 
 # ============================================================
 # DATA / EVIDENCE
@@ -383,7 +732,7 @@ def section(number, title, description=""):
 # ============================================================
 
 st.markdown(
-    """
+    dedent("""
     <div class="hero">
 
         <div class="kicker">
@@ -414,7 +763,7 @@ st.markdown(
         <span class="badge">OPEN-SOURCE</span>
 
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -462,14 +811,14 @@ section(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="info-box">
     <b>Problem in one sentence:</b>
     Voice-controlled IoT devices need continuous listening, but sending
     audio continuously to remote speech processing can increase network
     dependency, latency, processing cost and privacy exposure.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -541,13 +890,13 @@ section(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="green-box">
     <b>Core architecture:</b>
     Keep the wake decision local. Keep ordinary ambient audio local.
     Open the network speech path only after a valid custom wake event.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -765,13 +1114,13 @@ st.dataframe(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="info-box">
     <b>Important:</b> this is a cost scenario, not a claim that VAANI
     has already achieved a specific percentage reduction.
     Actual savings must be measured using network traffic and ASR-session logs.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -937,13 +1286,13 @@ section(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="green-box">
     <b>Offline-first behavior:</b>
     The microphone and KWS operate locally.
     The network path appears only after a valid wake event.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -984,13 +1333,13 @@ section(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="warning-box">
     <b>Evidence rule:</b>
     External benchmarks are not VAANI measurements.
     The final prototype must replace target values with actual hardware logs.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1085,7 +1434,7 @@ st.graphviz_chart(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="info-box">
     <b>Primary latency metric:</b> T3 − T0
     <br><br>
@@ -1099,7 +1448,7 @@ st.markdown(
     <br>
     • Mean, median and P95
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1175,7 +1524,7 @@ with m3:
     )
 
 st.markdown(
-    """
+    dedent("""
     <div class="info-box">
 
     <b>TAM calculation</b>
@@ -1200,7 +1549,7 @@ st.markdown(
     They are not published market figures and are not forecasts.
 
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1295,14 +1644,14 @@ st.graphviz_chart(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="info-box">
     <b>Commercial principle:</b>
     VAANI is positioned primarily as an edge-AI technology layer and
     reference architecture. Commercialization can combine integration
     contracts, per-device licensing, hardware, support and deployment services.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1398,14 +1747,14 @@ st.dataframe(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="warning-box">
     <b>Do not label these results as achieved until measured.</b>
     The website currently presents the engineering target and validation
     method. Once hardware testing is complete, the actual measured values
     should replace the target placeholders.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1566,13 +1915,13 @@ st.graphviz_chart(
 )
 
 st.markdown(
-    """
+    dedent("""
     <div class="green-box">
     <b>VAANI principle:</b>
     Local intelligence decides when the device should listen remotely.
     Remote intelligence is used only when the user actually activates the system.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -1626,7 +1975,7 @@ for key, name in source_names.items():
 # ============================================================
 
 st.markdown(
-    """
+    dedent("""
     <div class="footer">
         <b>VAANI · SIH26172</b><br><br>
         Edge-first voice activation for low-power intelligent devices.<br>
@@ -1634,6 +1983,6 @@ st.markdown(
         TAM/SAM/SOM values are modelled.
         VAANI hardware performance must be measured before being labelled as achieved.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )

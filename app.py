@@ -1,4 +1,4 @@
-
+```python
 from pathlib import Path
 
 import streamlit as st
@@ -18,42 +18,63 @@ st.set_page_config(
 )
 
 
-# ------------------------------------------------------------
-# Resolve paths relative to this file.
-# This works even when Streamlit uses a different working folder.
-# ------------------------------------------------------------
+# ============================================================
+# PATH CONFIGURATION
+# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
 
-HTML_FILE = (
-    BASE_DIR
-    / "assets"
-    / "website"
-    / "index.html"
-)
+# Your actual website location is the first option.
+CANDIDATE_HTML_FILES = [
+    BASE_DIR / "assets" / "digital_twin" / "index.html",
+    BASE_DIR / "assets" / "website" / "index.html",
+    BASE_DIR / "website" / "index.html",
+    BASE_DIR / "index.html",
+    BASE_DIR / "assets" / "index.html",
+]
 
 
-# ------------------------------------------------------------
-# Streamlit page styling
-# ------------------------------------------------------------
+def find_website_file():
+    """Find index.html in the expected project locations."""
+
+    for candidate in CANDIDATE_HTML_FILES:
+        if candidate.is_file():
+            return candidate
+
+    # Fallback: search the project directory recursively.
+    # Avoid virtual environments and Git internals.
+    excluded_dirs = {".git", ".venv", "venv", "__pycache__"}
+
+    try:
+        for candidate in BASE_DIR.rglob("index.html"):
+            if any(part in excluded_dirs for part in candidate.parts):
+                continue
+
+            if candidate.is_file():
+                return candidate
+
+    except OSError:
+        pass
+
+    return None
+
+
+HTML_FILE = find_website_file()
+
+
+# ============================================================
+# STREAMLIT STYLING
+# ============================================================
 
 st.markdown(
     """
     <style>
-        /* Hide standard Streamlit navigation and footer */
-        #MainMenu {
-            visibility: hidden;
-        }
-
-        footer {
-            visibility: hidden;
-        }
-
+        #MainMenu,
+        footer,
         header {
             visibility: hidden;
         }
 
-        /* Remove default content spacing */
         [data-testid="stAppViewContainer"] > .main {
             padding-top: 0 !important;
         }
@@ -64,14 +85,12 @@ st.markdown(
             margin: 0 !important;
         }
 
-        /* Make the embedded website fill the available width */
         iframe {
             display: block;
             width: 100%;
             border: none !important;
         }
 
-        /* Avoid horizontal overflow */
         html,
         body,
         [data-testid="stAppViewContainer"] {
@@ -83,59 +102,94 @@ st.markdown(
 )
 
 
-# ------------------------------------------------------------
-# Verify the website file exists before loading it
-# ------------------------------------------------------------
+# ============================================================
+# CHECK WHETHER THE WEBSITE EXISTS
+# ============================================================
 
-if not HTML_FILE.is_file():
+if HTML_FILE is None:
     st.error("VAANI website file could not be found.")
 
     st.markdown(
         """
-        The application expects the following file structure:
+        The Streamlit application is running, but it cannot
+        find the website HTML file.
 
-        ```text
-        VAANI/
-        ├── app.py
-        ├── requirements.txt
-        └── assets/
-            └── website/
-                └── index.html
-        ```
+        Make sure `index.html` is committed to your GitHub
+        repository at the following location:
         """
     )
 
     st.code(
-        f"Expected HTML file:\n{HTML_FILE}",
+        "your-repository/\n"
+        "├── app.py\n"
+        "├── requirements.txt\n"
+        "└── assets/\n"
+        "    └── digital_twin/\n"
+        "        └── index.html",
         language="text",
     )
 
+    st.markdown("**Expected file path:**")
+
+    st.code(
+        str(BASE_DIR / "assets" / "digital_twin" / "index.html"),
+        language="text",
+    )
+
+    st.markdown("**HTML files found in the project:**")
+
+    try:
+        found_html_files = [
+            str(path.relative_to(BASE_DIR))
+            for path in BASE_DIR.rglob("*.html")
+            if not any(
+                part in {".git", ".venv", "venv", "__pycache__"}
+                for part in path.parts
+            )
+        ]
+    except OSError:
+        found_html_files = []
+
+    if found_html_files:
+        st.code(
+            "\n".join(found_html_files),
+            language="text",
+        )
+    else:
+        st.warning(
+            "No HTML files were found. Upload index.html "
+            "to GitHub and commit the file."
+        )
+
     st.info(
-        "Create the assets/website folder and upload "
-        "the complete index.html file before redeploying."
+        "After adding the missing file, restart or reboot "
+        "your Streamlit app."
     )
 
     st.stop()
 
 
-# ------------------------------------------------------------
-# Read the complete website
-# ------------------------------------------------------------
+# ============================================================
+# LOAD THE WEBSITE HTML
+# ============================================================
 
 try:
     html_content = HTML_FILE.read_text(encoding="utf-8")
 
-except OSError as error:
+except (OSError, UnicodeError) as error:
     st.error("VAANI could not read the website file.")
 
-    st.code(str(error), language="text")
+    st.code(
+        f"File: {HTML_FILE}\nError: {error}",
+        language="text",
+    )
 
     st.stop()
 
 
-# ------------------------------------------------------------
-# Render the website
-# ------------------------------------------------------------
+# ============================================================
+# RENDER THE WEBSITE
+# ============================================================
 
 components.html(
     html_content,
@@ -145,14 +199,19 @@ components.html(
 
 
 # ============================================================
-# IMPORTANT
+# INTEGRATION STATUS
+# ============================================================
 #
-# This file renders the front-end website.
-# It does not independently connect to:
+# This application loads and displays the website.
+#
+# It does not automatically connect to:
 # - ESP32 / ESP32-S3 hardware
-# - A trained KWS model
+# - A trained keyword spotting model
 # - Live RAM or CPU telemetry
 # - A remote ASR server
 #
-# Those integrations require their own backend and firmware.
+# These features require separate backend, model,
+# network, and firmware integrations.
+#
 # ============================================================
+```
